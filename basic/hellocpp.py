@@ -7,7 +7,7 @@ class HelloMultiLangTest(rfm.RegressionTest):
     lang = parameter(['c', 'cpp'])
     valid_systems = ["+default", "+login", "+test"]
     valid_prog_environs = ['-mpi']
-    tags = {'calcua', 'basic', 'compilation'}
+    tags = {'calcua', 'basic', 'compilation', 'daily'}
 
     executable_opts = ['> hello.out']
     sanity_patterns = sn.assert_found(r'Hello, World\!', 'hello.out')

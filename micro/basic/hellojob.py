@@ -7,12 +7,12 @@ class VSCJobTest(rfm.RunOnlyRegressionTest):
     descr = "test running job"
     valid_systems = ["+default"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1
     executable = 'echo hello world!'
-    tags = {"vsc", "micro", "basic"}
+    tags = {"vsc", "micro", "basic", "daily"}
 
     @sanity_function
     def assert_job(self):

@@ -30,28 +30,13 @@ site_configuration = {
     'modes':
     [
         {
-            'name': 'basic',
-            'options': standard_mode_options + ['--tag=basic'],
-        },
-        {
-            'name': 'vsc',
-            'options': standard_mode_options + ['--tag=vsc'],
+            'name': 'daily',
+            # change exec-policy to serial
+            'options': standard_mode_options[1:len(standard_mode_options)] + ['--flex-alloc-nodes="1"', '--exec-policy=async', '-t daily']
         },
         {
             'name': 'calcua',
-            'options': standard_mode_options + ['--tag=calcua'],
-        },
-        {
-            'name': 'numpy',
-            'options': standard_mode_options + ['--tag=python'],
-        },
-        {
-            'name': 'nogpu',
-            'options': standard_mode_options + ['--exclude-tag=gpu'],
-        },
-        {
-            'name': 'gpu',
-            'options': standard_mode_options + ['--tag=gpu'],
+            'options': standard_mode_options + ['-T massive', '-T daily'],
         },
         {
             'name': 'all',
@@ -155,20 +140,23 @@ site_configuration = {
                     'features': ['gpu'],
 
                 },
-                # {
-                #     'name': 'amd',
-                #     'scheduler': 'slurm',
-                #     'access': [calcua_account_string_tier2, '-p arcturus_gpu'],
-                #     'environs': ['standard'],
-                #     'descr': 'AMD GPU node',
-                #     'max_jobs': 18,                #     'launcher': 'srun',
-                #     'resources': [
-                #         {
-                #         'name': 'gpu',
-                #         'options': ['--gpus-per-node={num_gpus}'],
-                #         },
-                #     ]
-                # }
+                {
+                    'name': 'amd',
+                    'scheduler': 'slurm',
+                    'access': [calcua_account_string_tier2, '-p arcturus_gpu'],
+                    'environs': ['standard'],
+                    'descr': 'AMD GPU node',
+                    'max_jobs': 18,                #     'launcher': 'srun',
+                    'launcher': 'srun',
+                    'resources': [
+                        {
+                        'name': 'gpu',
+                        'options': ['--gpus-per-node={num_gpus}'],
+                        },
+                    ],
+                    'extras': {'num_cpus': 64, 'num_gpus': 2},
+                    'features': ['gpu'],
+                }
             ]
         },
         {

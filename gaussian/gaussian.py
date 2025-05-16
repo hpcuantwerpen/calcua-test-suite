@@ -8,7 +8,6 @@ import os
 class GaussianBaseTest(rfm.RunOnlyRegressionTest):
     def __init__(self):
         self.valid_prog_environs = ['standard']
-        self.modules = ['Gaussian/g16_c01-avx2']
 
         self.sanity_patterns = sn.assert_found(r' Normal termination of Gaussian',
                                                self.stdout)
@@ -27,6 +26,7 @@ class GaussianBaseTest(rfm.RunOnlyRegressionTest):
 
 @rfm.simple_test
 class GaussianCPUTest(GaussianBaseTest):
+    version = parameter(['Gaussian/g16_c01-avx2'])
     def __init__(self):
         super().__init__()
         self.valid_systems = ['+cpu -default -login -test']
@@ -48,5 +48,6 @@ class GaussianCPUTest(GaussianBaseTest):
         self.descr = f'Single Node Gaussian Test, cpus{self.num_cpus_per_task}'
 
     @run_before('run')
-    def replace_launcher(self):
+    def set_details(self):
+        self.modules = [self.version]
         self.job.launcher = getlauncher('local')()

@@ -11,7 +11,7 @@ class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     tags = {'amber', 'calcua', 'performance', 'cpu'}
     version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'])
     valid_prog_environs = ['standard'] 
-    num_nodes = parameter([8])
+    num_nodes = parameter([2, 8])
     
     @run_after('init')
     def skip_invalid(self):

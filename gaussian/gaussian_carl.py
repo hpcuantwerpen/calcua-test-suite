@@ -6,8 +6,8 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class GaussianCheck(rfm.RunOnlyRegressionTest):
+    version = parameter(['Gaussian/g16_c01-avx2'])
     valid_systems = ['vaughan:default']
-    modules = ['Gaussian/g16_c01-avx2']
     valid_prog_environs = ['standard']
     executable = 'g16'
     tags = {'calcua', 'performance', 'gaussian'}
@@ -37,5 +37,6 @@ class GaussianCheck(rfm.RunOnlyRegressionTest):
 
     @run_before('run')
     def set_details(self):
+        self.modules = [self.version]
         self.job.options = ['--time 01:00:00', '--switches=1']
 

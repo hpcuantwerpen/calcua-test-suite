@@ -19,7 +19,7 @@ class MPIHelloWorldTest(rfm.RegressionTest):
     num_cpus_per_task = 1
     executable = 'mpi_hello_world'
     sourcesdir = 'src_mpi_hello_world'
-    tags = {"vsc", "micro", "mpi"}
+    tags = {"vsc", "micro", "mpi", "daily"}
 
     @run_before('run')
     def set_launcher(self):

@@ -9,7 +9,7 @@ class HelloThreadedExtendedTest(rfm.RegressionTest):
     sourcepath = 'hworldthread.cpp'
     build_system = 'SingleSource'
     executable_opts = ['16']
-    tags = {'calcua', 'basic', 'compilation'}
+    tags = {'calcua', 'basic', 'compilation', 'daily'}
     num_tasks_per_node = 16
 
     @run_before('compile')

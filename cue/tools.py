@@ -13,7 +13,7 @@ class VSCToolAvailabilityTest(rfm.RunOnlyRegressionTest):
     tool = parameter(tools.keys())
     valid_systems = ["+login", "+default", "+test"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1
@@ -73,7 +73,7 @@ class VSCToolVersionTest(rfm.RunOnlyRegressionTest):
     tool = parameter(targets)
     valid_systems = ["+login", "+default", "+test"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1

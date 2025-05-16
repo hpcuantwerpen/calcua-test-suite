@@ -9,12 +9,13 @@ class pytorch_cuda(hpctestlib.ml.pytorch.horovod.pytorch_cnn_check):
     valid_systems = ['*:nvidia']
     tags = {'pytorch',  'torch', 'nvidia', 'gpu', 'calcua', 'performance'}
     # bundle contains torchvision
-    modules = ['PyTorch-bundle/1.13.1-foss-2022a-CUDA-11.7.0 ', 'Horovod/0.28.1-foss-2022a-CUDA-11.7.0-PyTorch-1.13.1']
+    version = parameter([['PyTorch-bundle/1.13.1-foss-2022a-CUDA-11.7.0 ', 'Horovod/0.28.1-foss-2022a-CUDA-11.7.0-PyTorch-1.13.1'], ])
     valid_prog_environs = ['standard'] 
     num_iters = 40
 
     @run_before('run')
     def set_options(self):
+        self.modules = [self.version]
         if self.current_system.name == 'vaughan':
             # works on 4 gpus
             self.num_devices = 4

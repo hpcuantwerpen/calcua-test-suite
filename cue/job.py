@@ -10,7 +10,7 @@ class JobCleanEnvTest(rfm.RunOnlyRegressionTest):
     descr = "test that job starts in a clean environment"
     valid_systems = ["+default", "+test"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1
@@ -28,7 +28,7 @@ class JobSrunCopyEnvTest(rfm.RunOnlyRegressionTest):
     descr = "test that srun inside job copies the job environment into the task environment"
     valid_systems = ["+default", "+test"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1

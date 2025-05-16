@@ -12,7 +12,7 @@ class VSCEnvTest(rfm.RunOnlyRegressionTest):
     envar = parameter(envars.keys())
     valid_systems = ["+default", "+login", "+test"]
     valid_prog_environs = ["standard"]
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1

@@ -18,7 +18,7 @@ KPAR = {kpar}
 @rfm.simple_test
 class vasp_test(rfm.RunOnlyRegressionTest):
     valid_systems = ['+default']
-    modules = ['VASP/6.4.2-intel-2022a-vtst-199-Wannier90-3.1.0-HDF5-1.12.2']
+    version = parameter(['VASP/6.5.1-intel-2024a-Wannier90-3.1.0-HDF5-1.14.5-DFTD4-3.7.0', 'VASP/6.4.2-intel-2022a-vtst-199-Wannier90-3.1.0-HDF5-1.12.2'])
     valid_prog_environs = ['standard']
     executable = 'vasp_std'
     tags = {'calcua', 'performance', 'vasp'}
@@ -55,4 +55,5 @@ class vasp_test(rfm.RunOnlyRegressionTest):
 
     @run_before('run')
     def set_details(self):
+        self.modules = [self.version]
         self.job.options = ['--time 01:00:00', '--switches=1', '--exclusive']

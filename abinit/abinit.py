@@ -6,7 +6,7 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class AbinitCheck(rfm.RunOnlyRegressionTest):
     valid_systems = ['vaughan:default', 'leibniz:default']
-    modules = ['ABINIT/9.8.2-intel-2020a-hybrid-mkl']  # full name of module unless (D)
+    version = parameter(['ABINIT/10.2.5-intel-2023a', 'ABINIT/9.8.2-intel-2020a-hybrid-mkl'])
     valid_prog_environs = ['standard']  # standard, builtin also ok
     executable = 'abinit'
     tags = {'calcua', 'performance', 'abinit'}
@@ -36,4 +36,5 @@ class AbinitCheck(rfm.RunOnlyRegressionTest):
 
     @run_before('run')
     def set_details(self):
+        self.modules = [self.version]
         self.job.options = ['--time 01:00:00', '--switches=1', '--exclusive']

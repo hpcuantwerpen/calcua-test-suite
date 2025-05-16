@@ -2,6 +2,7 @@ import os
 import reframe as rfm
 import reframe.utility.sanity as sn
 import sys
+from reframe.core.backends import getlauncher
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 from shared_fs_list import shared_fs, shared_fs_sites
@@ -12,40 +13,13 @@ class VSCSharedFSMountTest(rfm.RunOnlyRegressionTest):
     descr = "test shared filesystem mount point "
     fs = parameter(shared_fs.keys())
     site = parameter(shared_fs_sites)
-    valid_systems = ["+login", "+default", "+test"]
+    valid_systems = ["+cpu -gpu"]
     valid_prog_environs = ["standard"]
     maintainers = ['rverschoren']
-    time_limit = '10m'
-    num_tasks = 1
+    time_limit = '1m'
+    num_tasks = -1
     num_tasks_per_node = 1
-    num_cpus_per_task = 1
-    tags = {"vsc", "cue", "fs"}
-
-    @run_after('init')
-    def set_param(self):
-        path = os.path.join(shared_fs[self.fs]['mount'], self.site)
-        self.descr += path
-        exe = """python3 -c 'import os;print(os.path.isdir(os.path.realpath("{}")))'"""
-        self.executable = exe.format(path)
-
-    @sanity_function
-    def assert_env(self):
-        return sn.assert_found(r'^True$', self.stdout)
-
-
-@rfm.simple_test
-class VSCSharedFSMode(rfm.RunOnlyRegressionTest):
-    descr = "test shared filesystem mode "
-    fs = parameter(shared_fs.keys())
-    site = parameter(shared_fs_sites)
-    valid_systems = ["+login", "+default", "+test"]
-    valid_prog_environs = ["standard"]
-    maintainers = ['rverschoren']
-    time_limit = '10m'
-    num_tasks = 1
-    num_tasks_per_node = 1
-    num_cpus_per_task = 1
-    tags = {"vsc", "cue", "fs"}
+    tags = {"vsc", "cue", "fs", "daily"}
 
     @run_after('init')
     def set_param(self):
@@ -55,13 +29,19 @@ class VSCSharedFSMode(rfm.RunOnlyRegressionTest):
         if not mode:
             # default: check if directory has rwxr-xr-x permissions 
             mode = '755'
-        exe = """python3 -c 'import os;print(oct(os.stat(os.path.realpath("{}")).st_mode)[-3:] == "{}")'"""
-        self.executable = exe.format(path, mode)
+        self.executable = f"""python3 -c 'import os;print(os.uname().nodename, os.path.isdir(os.path.realpath("{path}")), oct(os.stat(os.path.realpath("{path}")).st_mode)[-3:] == "{mode}")'"""
+
+    @run_after("setup")
+    def set_launcher(self):
+        if self.current_partition.name == "login":
+            self.job.launcher = getlauncher('local')()
+        else:
+            self.job.launcher.options = ['--overlap']
+            self.job.launcher = getlauncher('srun')()
 
     @sanity_function
     def assert_env(self):
-        return sn.assert_found(r'^True$', self.stdout)
-
+        return sn.and_(sn.assert_found(r'True', self.stdout), sn.assert_not_found(r'False', self.stdout))
 
 @rfm.simple_test
 class VSCSharedFSAccountDir(rfm.RunOnlyRegressionTest):
@@ -71,14 +51,14 @@ class VSCSharedFSAccountDir(rfm.RunOnlyRegressionTest):
         if 'envar' in shared_fs[x].keys():
             targets += [x]
     fs = parameter(targets)
-    valid_systems = ["+login", "+default", "+test"]
+    valid_systems = ["+cpu -gpu"]
     valid_prog_environs = ["standard"]
     maintainers = ['rverschoren']
-    time_limit = '10m'
+    time_limit = '1m'
     num_tasks = 1
     num_tasks_per_node = 1
     num_cpus_per_task = 1
-    tags = {"vsc", "cue", "fs"}
+    tags = {"vsc", "cue", "fs", 'daily'}
 
     @run_after('init')
     def set_param(self):
@@ -88,9 +68,17 @@ class VSCSharedFSAccountDir(rfm.RunOnlyRegressionTest):
             sites = {'1': "brussel", '2': "antwerpen", '3': "leuven", '4': "gent"}
             account_site = sites[os.environ["USER"][3]]
             path = os.path.join(shared_fs[self.fs]['mount'], account_site, os.environ['USER'][3:6], os.environ['USER'])
-        exe = """python3 -c 'import os;print(os.path.isdir(os.path.realpath("{}")))'"""
+        exe = """python3 -c 'import os;print(os.uname().nodename, os.path.isdir(os.path.realpath("{}")))'"""
         self.executable = exe.format(path)
+
+    @run_after("setup")
+    def set_launcher(self):
+        if self.current_partition.name == "login":
+            self.job.launcher = getlauncher('local')()
+        else:
+            self.job.launcher.options = ['--overlap']
+            self.job.launcher = getlauncher('srun')()
 
     @sanity_function
     def assert_env(self):
-        return sn.assert_found(r'^True$', self.stdout)
+        return sn.assert_found(r'True$', self.stdout)

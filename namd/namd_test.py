@@ -45,6 +45,7 @@ class NamdBaseTest(rfm.RunOnlyRegressionTest):
 @rfm.simple_test
 class Namd_SMP_CPUTest(NamdBaseTest):
     # NAMD SMP CPU test
+    version = parameter(['NAMD/2.14-verbs-smp'])
 
     def __init__(self):
         self.tags.add('smp')
@@ -60,7 +61,7 @@ class Namd_SMP_CPUTest(NamdBaseTest):
         self.num_tasks = int(self.num_nodes)
         configFile = self.download_material()
 
-        self.modules = ['NAMD/2.14-verbs-smp']
+        self.modules = [self.version]
 
         self.create_nodelist()
 
@@ -70,6 +71,7 @@ class Namd_SMP_CPUTest(NamdBaseTest):
 @rfm.simple_test
 class Namd_NotSMP_CPUTest(NamdBaseTest):
     # NAMD notSMP CPU test
+    version = parameter(['NAMD/2.14-verbs'])
 
     def __init__(self):
         self.time_limit = '20m'
@@ -86,7 +88,7 @@ class Namd_NotSMP_CPUTest(NamdBaseTest):
 
         configFile = self.download_material()
 
-        self.modules = ['NAMD/2.14-verbs']
+        self.modules = [self.version]
 
         # select launcher
         self.create_nodelist()

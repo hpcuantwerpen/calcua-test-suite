@@ -23,7 +23,7 @@ class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
             self.modules = [self.version]
             self.valid_prog_environs = ['standard']
         elif self.nb_impl == 'gpu' and self.version == 'GROMACS/2021.1-intel-2020a.04-UArecipe-CUDA':
-            self.valid_systems = ['+gpu']
+            self.valid_systems = ['*:nvidia']
             self.tags = {'gromacs', 'calcua', 'performance', 'gpu'}
             self.modules = [self.version]
             self.valid_prog_environs = ['standard']

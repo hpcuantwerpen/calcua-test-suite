@@ -5,7 +5,7 @@ import reframe.utility.sanity as sn
 @rfm.simple_test
 class GPU_Burn_nvidia(rfm.RunOnlyRegressionTest):
     descr = "GPU burn test on nvidia node"
-    valid_systems = ["+gpu"]
+    valid_systems = ["*:nvidia"]
     valid_prog_environs = ["CUDA"]
     modules = ['git']
     env_vars = {'CUDAPATH': '$EBROOTCUDA'}
