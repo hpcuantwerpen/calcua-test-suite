@@ -4,12 +4,13 @@ import reframe.utility.sanity as sn
 
 @rfm.simple_test
 class HelloThreadedExtendedTest(rfm.RegressionTest):
-    valid_systems = ['*:default-node']
-    valid_prog_environs = ['foss-2021a', 'intel-2021a']
+    valid_systems = ["+default", "+login", "+test"]
+    valid_prog_environs = ['-mpi']
     sourcepath = 'hworldthread.cpp'
     build_system = 'SingleSource'
     executable_opts = ['16']
     tags = {'calcua', 'basic', 'compilation'}
+    num_tasks_per_node = 16
 
     @run_before('compile')
     def set_compilation_flags(self):

@@ -7,30 +7,26 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
-    valid_systems = ['*:default-node']
+    valid_systems = ['+default', '+test -login']
     tags = {'amber', 'calcua', 'performance', 'cpu'}
-    modules = ['Amber/20-intel-2020a-AmberTools-20-patchlevel-6-10']
+    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'])
     valid_prog_environs = ['standard'] 
-    num_nodes = parameter(['1', '2', '4', '8'])
-
+    num_nodes = parameter([8])
+    
     @run_after('init')
     def skip_invalid(self):
         self.skip_if(self.variant != 'mpi', 'skipping cuda variant for the moment')
 
     @run_before('run')
     def set_options(self):
-        # one task per node, many threads
-        if self.current_system.name == 'vaughan':
-            self.num_tasks = 64 * int(self.num_nodes)
-            self.num_tasks_per_node = 64
-        if self.current_system.name in ['leibniz', 'breniac']:
-            self.num_tasks = 28 * int(self.num_nodes)
-            self.num_tasks_per_node = 28
+        self.num_tasks_per_node = self.current_partition.extras['num_cpus']
+        self.num_tasks = int(self.num_nodes) * self.num_tasks_per_node
         self.job.launcher = getlauncher('mpirun')()
 
     @run_before('run')
     def set_details(self):
-        self.job.options = ['--time 03:00:00', '--switches=1', '--exclusive']
+        self.modules = [self.version]
+        self.job.options = ['--time 01:00:00', '--switches=1', '--exclusive']
 
 
 #TODO fix

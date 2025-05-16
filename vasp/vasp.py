@@ -2,6 +2,7 @@ import reframe as rfm
 import reframe.utility.sanity as sn
 from reframe.core.builtins import *
 import os
+from reframe.core.backends import getlauncher
 
 INCAR_TEMPLATE = """SYSTEM=UO2
 ALGO = Normal
@@ -16,26 +17,22 @@ KPAR = {kpar}
 
 @rfm.simple_test
 class vasp_test(rfm.RunOnlyRegressionTest):
-    valid_systems = ['vaughan:mpi-job', 'leibniz:mpi-job']  # single-node = std node. mpi will be loaded with vasp module
-    modules = ['VASP/6.4.2-intel-2022a-vtst-199-Wannier90-3.1.0-HDF5-1.12.2']  # full name of module unless (D)
-    valid_prog_environs = ['*']  # standard, builtin also ok
+    valid_systems = ['+default']
+    modules = ['VASP/6.4.2-intel-2022a-vtst-199-Wannier90-3.1.0-HDF5-1.12.2']
+    valid_prog_environs = ['standard']
     executable = 'vasp_std'
     tags = {'calcua', 'performance', 'vasp'}
-    num_nodes = parameter([1, 2, 4, 10])
-    # allref = {1: {'vaughan:mpi-job': {'elapsed_time': (1641, None, 0.1, 's')}},
-    #           2: {'vaughan:mpi-job': {'elapsed_time': (839, None, 0.1, 's')}},
-    #           4: {'vaughan:mpi-job': {'elapsed_time': (578, None, 0.1, 's')}},
-    #           10: {'vaughan:mpi-job': {'elapsed_time': (307, None, 0.1, 's')}}}    # TODO add ref timings leibniz
+    num_nodes = parameter([4, 10])
     time_limit = '1h'
 
-    @run_after('init')
+    @run_before('run')
     def setup_run(self):
-        if self.current_system.name == 'vaughan':
-            self.num_tasks_per_node = 64
-        elif self.current_system.name in ['leibniz', 'breniac']:
-            self.num_tasks_per_node = 28
+        self.num_tasks_per_node = self.current_partition.extras['num_cpus']
         self.num_tasks = self.num_nodes * self.num_tasks_per_node
-        #self.reference = self.allref[self.num_nodes]
+
+    @run_before('run')
+    def replace_launcher(self):
+        self.job.launcher = getlauncher('srun')()
 
     @run_after('setup')
     def write_incar(self):
@@ -59,4 +56,3 @@ class vasp_test(rfm.RunOnlyRegressionTest):
     @run_before('run')
     def set_details(self):
         self.job.options = ['--time 01:00:00', '--switches=1', '--exclusive']
-

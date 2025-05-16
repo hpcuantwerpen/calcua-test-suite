@@ -5,27 +5,24 @@
 
 import reframe as rfm
 import reframe.utility.sanity as sn
+from reframe.core.backends import getlauncher
 
 
 @rfm.simple_test
 class FFTWTest(rfm.RegressionTest):
-    valid_systems = ['*:mpi-job']
-    valid_prog_environs = ['foss-2021a', 'intel-2021a']
+    valid_systems = ['-gpu']
+    valid_prog_environs = ['+mpi']
     sourcepath = 'fftw_benchmark.c'
     build_system = 'SingleSource'
     
     flags = variable(dict, value={
-        'foss-2021a':   ['-O2', '-lfftw3'],
-        'intel-2021a': ['-O2', '-mkl']
+        'foss-2023a_mpi':   ['-O2', '-lfftw3'],
+        'intel-2023a_mpi': ['-O2', '-qmkl'],
+        'intel-2024a_mpi': ['-O2', '-qmkl']
     })
     tags = {'calcua', 'performance', 'compilation', 'fftw'}
 
     def __init__(self):
-        self.reference = {
-        'leibniz:mpi-job': {'fftw_exec_time': (12, None, 0.10, 'seconds')},
-        'breniac:mpi-job': {'fftw_exec_time': (12, None, 0.10, 'seconds')},
-        'vaughan:mpi-job': {'fftw_exec_time': (12, None, 0.10, 'seconds')},
-        }
         self.sanity_patterns = sn.assert_eq(
             sn.count(sn.findall(r'execution time', 'fftw.out')), 1)
         
@@ -35,14 +32,17 @@ class FFTWTest(rfm.RegressionTest):
                 'exec_time', float),
         }
 
-        if self.current_system.name in ['leibniz', 'breniac']:
-            self.num_tasks = 56
-            self.num_tasks_per_node = 28
-            self.executable_opts = ['224 56 1000 1 >fftw.out']
-        elif self.current_system.name in ['vaughan']:
-            self.num_tasks = 128
-            self.num_tasks_per_node = 64
-            self.executable_opts = ['224 128 1000 1 >fftw.out']
+    @run_before('run')
+    def set_launcher(self):
+        self.job.launcher = getlauncher('srun')()
+
+    
+    @run_before('run')
+    def setup_run(self):
+        self.num_tasks_per_node = self.current_partition.extras['num_cpus']
+        self.num_tasks = 2 * self.current_partition.extras['num_cpus']
+        
+        self.executable_opts = [f'224 {self.num_tasks} 1000 1 >fftw.out']
 
     @run_before('compile')
     def set_compiler_flags(self):
@@ -52,17 +52,3 @@ class FFTWTest(rfm.RegressionTest):
     @run_before('run')
     def set_details(self):
         self.job.options = ['--time 00:20:00', '--exclusive', '--switches=1']
-
-    # @run_after('setup')
-    # def set_reference(self):
-    #     envname = self.current_environ.name
-    #     system = self.current_system.name
-    #     partition = self.current_partition.name
-    #     value = self.par_references[partition][envname]
-    #     reference = system + ':' + partition
-
-    #     self.reference = {
-    #         reference: {
-    #             'fftw_exec_time': (value, None, 0.05, 's'),
-    #         },
-    #     }

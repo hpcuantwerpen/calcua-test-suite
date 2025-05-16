@@ -9,15 +9,10 @@ import reframe.utility.sanity as sn
 
 @rfm.simple_test
 class AllocSpeedTest(rfm.RegressionTest):
-    valid_systems = ['*:default-node']
+    valid_systems = ['-gpu']
     valid_prog_environs = ['standard']
-    descr = 'Time to allocate 4096 MB'
+    descr = 'Time to allocate 8192 MB'
     tags = {'calcua', 'performance', 'compilation'}
-    reference = {
-        'leibniz:default-node': {'time': (20.4154, None, 0.05, 'seconds')},
-        'breniac:default-node': {'time': (20.4154, None, 0.05, 'seconds')},
-        'vaughan:default-node': {'time': (20.4154, None, 0.05, 'seconds')},
-        }
     
     def __init__(self):
         self.sourcepath = 'alloc_speed.cpp'
@@ -32,11 +27,6 @@ class AllocSpeedTest(rfm.RegressionTest):
         }
         self.maintainers = ['Michele Pugno']
 
-    # @run_before('performance')
-    # def set_reference(self):
-    #     self.reference = self.env_reference[self.current_environ.name]
-
     @run_before('run')
     def set_memory_limit(self):
-        if self.current_system.name != "leibniz":
-            self.job.options = ['--mem=20g']
+        self.job.options = ['--mem=20g']

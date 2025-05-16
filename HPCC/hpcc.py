@@ -5,51 +5,51 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class HPCCTest(rfm.RunOnlyRegressionTest):
-    scale = parameter(['1', '2', '8', '24'])
-    tags = {'HPCC', 'calcua', 'compilation', 'performance'}
+    num_nodes = parameter([1, 8, 24])
+    tags = {'hpcc', 'calcua', 'compilation', 'performance'}
     
     def __init__(self):
-        self.valid_systems = ['leibniz:default-node', 'vaughan:default-node']
+        self.valid_systems = ['leibniz:broadwell', 'vaughan:zen2', 'vaughan:zen3']
         self.valid_prog_environs = ['standard']
         self.maintainers = ['Michele Pugno']
         self.postrun_cmds = ['sleep 10'] # let's wait for scratch fs
-        if int(self.scale) > 2:
+        if int(self.num_nodes) > 8:
             self.tags.add('massive')
 
         self.sanity_patterns = sn.all([
             sn.assert_found(r'End of HPC Challenge tests.',
-                            f'HPCC_{self.scale}/hpccoutf.txt'),
+                            f'HPCC_{self.num_nodes}/hpccoutf.txt'),
             sn.assert_found(r'Command Executed. End.',
                             self.stdout)
         ])
         self.perf_patterns = {
             'HPL_Tflops': sn.extractsingle(r'HPL_Tflops=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float),
             'PTRANS_GBs': sn.extractsingle(r'PTRANS_GBs=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float),
             'MPIRandomAccess_GUPs': sn.extractsingle(r'MPIRandomAccess_GUPs=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float),
             'MPIFFT_Gflops': sn.extractsingle(r'MPIFFT_Gflops=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float),
             'StarSTREAM_Triad': sn.extractsingle(r'StarSTREAM_Triad=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float),
             'StarDGEMM_Gflops': sn.extractsingle(r'StarDGEMM_Gflops=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float), 
             'RandomlyOrderedRingBandwidth_GBytes': sn.extractsingle(r'RandomlyOrderedRingBandwidth_GBytes=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float), 
             'RandomlyOrderedRingLatency_usec': sn.extractsingle(r'RandomlyOrderedRingLatency_usec=(?P<data>\S+)',
-                                           f'HPCC_{self.scale}/hpccoutf.txt',
+                                           f'HPCC_{self.num_nodes}/hpccoutf.txt',
                                            'data', float), 
         }
 
-        # self.scale_reference = {
+        # self.num_nodes_reference = {
         #     '1':{
         #         'leibniz:default-node': {
         #             'HPL_Tflops': (0.892, -0.089, 0.089, 'Tflops'),
@@ -140,7 +140,7 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
         #     }
         # }
 
-        #self.reference = self.scale_reference[self.scale]
+        #self.reference = self.num_nodes_reference[self.num_nodes]
 
     @run_before('run')
     def set_details(self):
@@ -149,12 +149,8 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
     @run_after('setup')
     def set_num_cpus(self):
         self.executable = f"./hpcc-2021-{self.current_system.name}.sh"
-        if self.current_system.name in ['leibniz', 'breniac']:
-            self.num_tasks_per_node = 28
-            self.num_tasks = self.num_tasks_per_node * int(self.scale)
-        elif self.current_system.name in ['vaughan']:
-            self.num_tasks_per_node = 64
-            self.num_tasks = self.num_tasks_per_node * int(self.scale)
+        self.num_tasks_per_node = self.current_partition.extras['num_cpus']
+        self.num_tasks = self.num_tasks_per_node * int(self.num_nodes)
 
     @run_before('run')
     def replace_launcher(self):

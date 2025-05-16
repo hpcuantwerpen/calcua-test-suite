@@ -16,10 +16,12 @@ class pytorch_cuda(hpctestlib.ml.pytorch.horovod.pytorch_cnn_check):
     @run_before('run')
     def set_options(self):
         if self.current_system.name == 'vaughan':
+            # works on 4 gpus
             self.num_devices = 4
             self.num_tasks = 4
             self.num_cpus_per_task = 16
         if self.current_system.name == 'leibniz':
+            # works on 2 nodes
             self.num_devices = 2
             self.num_tasks = 2
             self.num_cpus_per_task = 14

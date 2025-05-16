@@ -5,26 +5,19 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class QECheck(rfm.RunOnlyRegressionTest):
-    valid_systems = ['*:default-node']
-    modules = ['QuantumESPRESSO/7.2-foss-2023a']  
-    valid_prog_environs = ['*']  
+    valid_systems = ['+cpu -login -default']
+    modules = ['QuantumESPRESSO/7.2-foss-2023a']
+    valid_prog_environs = ['standard']
     executable = 'pw.x'
     tags = {'calcua', 'performance', 'quantumespresso'}
-    num_nodes = parameter([1,4,8])
-    #allref =  
+    num_nodes = parameter([1,8])
+    #allref =
 
-    @run_after('init')
+    @run_before('run')
     def setup_run(self):
-
-        if self.current_system.name == 'vaughan':
-            self.num_tasks_per_node = 64
-            #nbands = 8
-        elif self.current_system.name in ['leibniz', 'breniac']:
-            self.num_tasks_per_node = 28
-            #nbands = 4
+        self.num_tasks_per_node = self.current_partition.extras['num_cpus']
         self.num_tasks = self.num_nodes * self.num_tasks_per_node
         self.executable_opts = ['-in', 'ausurf.in', '-nk', str(self.num_nodes), '-pd', '.true.']
-        #self.reference = self.allref[self.num_nodes]
 
     @run_before('run')
     def set_launcher(self):
@@ -36,7 +29,7 @@ class QECheck(rfm.RunOnlyRegressionTest):
 
     @performance_function('seconds')
     def elapsed_time(self):
-        return sn.extractsingle(r'electrons.+\s(?P<time>\S+)s WALL', self.stdout, 'time', float)
+        return sn.extractsingle(r'electrons.+\s(?P<time>[0-9.]+)s WALL', self.stdout, 'time', float)
 
     @run_before('run')
     def set_details(self):

@@ -4,7 +4,7 @@ export NNODES=${SLURM_JOB_NUM_NODES}
 export PPN=64
 export NTASKS=${SLURM_NTASKS}
 
-export EXECHOME=/apps/antwerpen/reframe/testsuite/calcua-test-suite/resources/HPCC-vaughan
+export EXECHOME=/apps/antwerpen/reframe/testsuite/calcua-test-suite/HPCC/resources/HPCC-vaughan
 export BMHOME=.
 
 module load calcua/2020a
