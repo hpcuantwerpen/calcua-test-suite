@@ -1,6 +1,6 @@
 This is the standard test suite for the tier-2 CalcUA system.
 
-Fixing:
+In Progress:
 - [ ] Completion of [issue 3488](https://github.com/reframe-hpc/reframe/issues/3488)
     - Update flexible tests and `daily` mode
 - [ ] Completion of [issue 3485](https://github.com/reframe-hpc/reframe/issues/3485)
@@ -9,3 +9,6 @@ Fixing:
     - Upgrade Amber tests
 - [ ] Completion of [issue 3491](https://github.com/reframe-hpc/reframe/issues/3491)
     - Update DB and grafana
+
+TODOs:
+- [ ] Compile HPCC with toolchains >= 2023a
