@@ -15,7 +15,7 @@ class pytorch_cuda(hpctestlib.ml.pytorch.horovod.pytorch_cnn_check):
 
     @run_before('run')
     def set_options(self):
-        self.modules = [self.version]
+        self.modules = self.version
         if self.current_system.name == 'vaughan':
             # works on 4 gpus
             self.num_devices = 4
