@@ -11,7 +11,7 @@ class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     tags = {'amber', 'calcua', 'performance', 'cpu'}
     version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'])
     valid_prog_environs = ['standard'] 
-    num_nodes = parameter([2, 8])
+    num_nodes = parameter([2])
     
     @run_after('init')
     def skip_invalid(self):
@@ -34,28 +34,39 @@ class amber_gpu(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
     valid_systems = ['*:nvidia']
     tags = {'amber', 'calcua', 'performance', 'gpu'}
-    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1'])
+    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1', 'Amber/22.5-foss-2022a-AmberTools-22.5-CUDA-11.7.0'])
     valid_prog_environs = ['standard'] 
-    variant = parameter(['cuda'], loggable=True) # override parent class, gpu only
+    # variant = parameter(['cuda'], loggable=True) # override parent class, gpu only
+
+    @run_after('init')
+    def skip_invalid(self):
+        self.skip_if(self.variant != 'cuda', 'skipping mpi variant')
 
     @run_before('run')
     def set_options(self):
+        # run with not MPI binary
+        self.executable = "pmemd.cuda"
         # one task per node, many threads
         if self.current_system.name == 'vaughan':
             self.num_tasks = 1
+            self.num_nodes = 1
             self.num_tasks_per_node = 1
+            self.num_cpus_per_task = 4
             self.num_devices = 1
-            # self.env_vars['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+            self.env_vars['CUDA_VISIBLE_DEVICES'] = '0'
+            self.env_vars['CUDA_LAUNCH_BLOCKING'] = '1'
         if self.current_system.name in ['leibniz']:
             self.num_tasks = 1
             self.num_nodes = 1
             self.num_tasks_per_node = 1
+            self.num_cpus_per_task = 4
             self.num_devices = 1
-            # self.env_vars['CUDA_VISIBLE_DEVICES'] = '0,1'
-        self.job.launcher = getlauncher('mpirun')()
+            self.env_vars['CUDA_VISIBLE_DEVICES'] = '0'
+            self.env_vars['CUDA_LAUNCH_BLOCKING'] = '1'
+        self.job.launcher = getlauncher('local')()
         self.extra_resources = {'gpu': {'num_gpus': str(self.num_devices)}}
 
     @run_before('run')
     def set_details(self):
         self.modules = [self.version]
-        self.job.options = ['--time 01:10:00', '--switches=1']
+        self.job.options = ['--time 00:30:00', '--switches=1']
