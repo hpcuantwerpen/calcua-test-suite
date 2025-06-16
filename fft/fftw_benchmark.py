@@ -10,13 +10,15 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class FFTWTest(rfm.RegressionTest):
-    valid_systems = ['-gpu']
+    valid_systems = ['-gpu -test']
     valid_prog_environs = ['+mpi']
     sourcepath = 'fftw_benchmark.c'
     build_system = 'SingleSource'
-    
+    launcher = parameter(['srun', 'mpirun'])
+
     flags = variable(dict, value={
         'foss-2023a_mpi':   ['-O2', '-lfftw3'],
+        'foss-2024a_mpi':   ['-O2', '-lfftw3'],
         'intel-2023a_mpi': ['-O2', '-qmkl'],
         'intel-2024a_mpi': ['-O2', '-qmkl']
     })
@@ -34,7 +36,8 @@ class FFTWTest(rfm.RegressionTest):
 
     @run_before('run')
     def set_launcher(self):
-        self.job.launcher = getlauncher('srun')()
+        self.job.launcher = getlauncher(f'{self.launcher}')()
+        self.job.launcher.options = ['--verbose']
 
     
     @run_before('run')
@@ -43,6 +46,7 @@ class FFTWTest(rfm.RegressionTest):
         self.num_tasks = 2 * self.current_partition.extras['num_cpus']
         
         self.executable_opts = [f'224 {self.num_tasks} 1000 1 >fftw.out']
+        self.env_vars['SLURM_WHOLE'] = '1'
 
     @run_before('compile')
     def set_compiler_flags(self):
@@ -51,4 +55,4 @@ class FFTWTest(rfm.RegressionTest):
 
     @run_before('run')
     def set_details(self):
-        self.job.options = ['--time 00:20:00', '--exclusive', '--switches=1']
+        self.job.options = ['--time 00:10:00', '--exclusive', '--switches=1']

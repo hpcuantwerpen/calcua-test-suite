@@ -22,8 +22,8 @@ syslog_level = 'warning'
 calcua_account_string_tier2 = '-A ap_calcua_staff'
 
 # List of programming environments used in the cpu partitions
-cpu_env_list = ['standard', 'foss-2023a', 'intel-2023a',
-                'foss-2023a_mpi', 'intel-2023a_mpi', 'intel-2024a', 'intel-2024a_mpi']
+cpu_env_list = ['standard', 'foss-2023a', 'foss-2024a', 'intel-2023a',
+                'foss-2023a_mpi', 'foss-2024a_mpi', 'intel-2023a_mpi', 'intel-2024a', 'intel-2024a_mpi']
 
 # Site Configuration
 site_configuration = {
@@ -296,6 +296,10 @@ site_configuration = {
             'name': 'foss-2023a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2023a']},
         {
             'name': 'foss-2023a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2023a'], 'features': ['mpi']},
+        {
+            'name': 'foss-2024a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2024a']},
+        {
+            'name': 'foss-2024a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2024a'], 'features': ['mpi']},
         {
             'name': 'intel-2023a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2023a']},
         {
