@@ -20,7 +20,7 @@ class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     @run_before('run')
     def set_options(self):
         self.num_tasks_per_node = self.current_partition.extras['num_cpus']
-        self.num_tasks = int(self.num_nodes) * self.num_tasks_per_node
+        self.num_tasks = self.num_nodes * self.num_tasks_per_node
         self.job.launcher = getlauncher('mpirun')()
 
     @run_before('run')
@@ -34,7 +34,7 @@ class amber_gpu(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
     valid_systems = ['*:nvidia']
     tags = {'amber', 'calcua', 'performance', 'gpu'}
-    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1', 'Amber/22.5-foss-2022a-AmberTools-22.5-CUDA-11.7.0'])
+    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1'])
     valid_prog_environs = ['standard'] 
     # variant = parameter(['cuda'], loggable=True) # override parent class, gpu only
 
