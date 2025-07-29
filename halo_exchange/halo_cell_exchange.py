@@ -64,6 +64,8 @@ class HaloCellExchangeTest(rfm.RegressionTest):
 
 @rfm.simple_test
 class HaloCellExchange(HaloCellExchangeTest):
+    launcher = parameter(['mpirun', 'srun'])
+    
     def __init__(self):
         super().__init__()
 
@@ -79,4 +81,4 @@ class HaloCellExchange(HaloCellExchangeTest):
 
     @run_before('run')
     def set_launcher(self):
-        self.job.launcher = getlauncher('srun')()
+        self.job.launcher = getlauncher(self.launcher)()
