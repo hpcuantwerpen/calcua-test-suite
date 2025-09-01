@@ -44,7 +44,7 @@ class vasp_test(rfm.RunOnlyRegressionTest):
 
     @sanity_function
     def validate(self):
-        sn_cores = sn.assert_found(rf'running\s+{self.num_tasks} mpi-ranks, on\s+{self.num_nodes} nodes',
+        sn_cores = sn.assert_found(rf'running\s+{self.num_tasks} mpi-ranks,( with\s+1 threads/rank,)? on\s+{self.num_nodes} nodes',
                                    'OUTCAR')
         sn_brmix = sn.assert_not_found('BRMIX: very serious problems:', self.stdout)
         return sn_cores and sn_brmix
