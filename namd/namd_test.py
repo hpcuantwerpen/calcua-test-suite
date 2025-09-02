@@ -43,35 +43,10 @@ class NamdBaseTest(rfm.RunOnlyRegressionTest):
 
 
 @rfm.simple_test
-class Namd_SMP_CPUTest(NamdBaseTest):
-    # NAMD SMP CPU test
-    version = parameter(['NAMD/2.14-verbs-smp'])
-
-    def __init__(self):
-        self.tags.add('smp')
-        self.time_limit = '20m'
-
-        self.valid_systems = ['+default']
-        self.valid_prog_environs = ['standard']
-        super().__init__('cpu')
-
-    @run_before('run')
-    def setup_run(self):
-        self.num_cpus_per_task = self.current_partition.extras['num_cpus']
-        self.num_tasks = int(self.num_nodes)
-        configFile = self.download_material()
-
-        self.modules = [self.version]
-
-        self.create_nodelist()
-
-        self.executable = f'charmrun ++p {self.num_cpus_per_task*self.num_tasks} ++ppn {self.num_cpus_per_task} ++nodelist mynodes $EBROOTNAMD/namd2 {configFile}/{configFile}.namd'
-
-
-@rfm.simple_test
-class Namd_NotSMP_CPUTest(NamdBaseTest):
+class Namd_CPUTest(NamdBaseTest):
     # NAMD notSMP CPU test
-    version = parameter(['NAMD/2.14-verbs'])
+    # mpi build may seem not SMP
+    version = parameter(['NAMD/2.14-foss-2023a-mpi'])
 
     def __init__(self):
         self.time_limit = '20m'
@@ -83,13 +58,69 @@ class Namd_NotSMP_CPUTest(NamdBaseTest):
 
     @run_before('run')
     def setup_run(self):
-        self.num_cpus_per_task = self.current_partition.extras['num_cpus']
-        self.num_tasks = int(self.num_nodes)
+        self.num_cpus_per_task = 1
+        self.num_tasks = int(self.num_nodes)*self.current_partition.extras['num_cpus']
 
         configFile = self.download_material()
 
         self.modules = [self.version]
+        self.job.launcher = getlauncher('mpirun')()
 
         # select launcher
-        self.create_nodelist()
-        self.executable = f'charmrun ++p {self.num_cpus_per_task*self.num_tasks} ++nodelist mynodes $EBROOTNAMD/namd2 {configFile}/{configFile}.namd'
+        self.executable = f'namd2 {configFile}/{configFile}.namd'
+
+
+
+
+####### OLD VERBS INSTALL
+# @rfm.simple_test
+# class Namd_SMP_CPUTest(NamdBaseTest):
+#     # NAMD SMP CPU test
+#     version = parameter(['NAMD/2.14-verbs-smp'])
+
+#     def __init__(self):
+#         self.tags.add('smp')
+#         self.time_limit = '20m'
+
+#         self.valid_systems = ['+default']
+#         self.valid_prog_environs = ['standard']
+#         super().__init__('cpu')
+
+#     @run_before('run')
+#     def setup_run(self):
+#         self.num_cpus_per_task = self.current_partition.extras['num_cpus']
+#         self.num_tasks = int(self.num_nodes)
+#         configFile = self.download_material()
+
+#         self.modules = [self.version]
+
+#         self.create_nodelist()
+
+#         self.executable = f'charmrun ++p {self.num_cpus_per_task*self.num_tasks} ++ppn {self.num_cpus_per_task} ++nodelist mynodes $EBROOTNAMD/namd2 {configFile}/{configFile}.namd'
+
+
+# @rfm.simple_test
+# class Namd_NotSMP_CPUTest(NamdBaseTest):
+#     # NAMD notSMP CPU test
+#     version = parameter(['NAMD/2.14-verbs'])
+
+#     def __init__(self):
+#         self.time_limit = '20m'
+
+#         self.valid_systems = ['+default']
+
+#         self.valid_prog_environs = ['standard']
+#         super().__init__('cpu')
+
+#     @run_before('run')
+#     def setup_run(self):
+#         self.num_cpus_per_task = self.current_partition.extras['num_cpus']
+#         self.num_tasks = int(self.num_nodes)
+
+#         configFile = self.download_material()
+
+#         self.modules = [self.version]
+
+#         # select launcher
+#         self.create_nodelist()
+#         self.executable = f'charmrun ++p {self.num_cpus_per_task*self.num_tasks} ++nodelist mynodes $EBROOTNAMD/namd2 {configFile}/{configFile}.namd'
