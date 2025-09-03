@@ -46,7 +46,7 @@ class NamdBaseTest(rfm.RunOnlyRegressionTest):
 class Namd_CPUTest(NamdBaseTest):
     # NAMD notSMP CPU test
     # mpi build may seem not SMP
-    version = parameter(['NAMD/2.14-foss-2023a-mpi'])
+    version = parameter(['NAMD/2.14-foss-2023a-mpi', 'NAMD/3.0-foss-2024a-mpi'])
 
     def __init__(self):
         self.time_limit = '20m'
@@ -65,9 +65,11 @@ class Namd_CPUTest(NamdBaseTest):
 
         self.modules = [self.version]
         self.job.launcher = getlauncher('mpirun')()
-
+        exe = "namd2"
+        if "NAMD/3" in self.version:
+            exe = "namd3"
         # select launcher
-        self.executable = f'namd2 {configFile}/{configFile}.namd'
+        self.executable = f'{exe} {configFile}/{configFile}.namd'
 
 
 

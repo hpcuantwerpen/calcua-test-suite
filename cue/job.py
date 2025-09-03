@@ -15,7 +15,7 @@ class JobCleanEnvTest(rfm.RunOnlyRegressionTest):
     num_tasks_per_node = 1
     num_cpus_per_task = 1
     maintainers = ["smoors"]
-    tags = {"vsc", "cue", "job"}
+    tags = {"vsc", "cue", "job", "daily"}
     exe = 'print(os.getenv("TEST_ENVAR_OUTSIDE") is None)'
     executable = f"python3 -c 'import os;{exe}'"
 
@@ -33,7 +33,7 @@ class JobSrunCopyEnvTest(rfm.RunOnlyRegressionTest):
     num_tasks_per_node = 1
     num_cpus_per_task = 1
     maintainers = ["smoors"]
-    tags = {"vsc", "cue", "job"}
+    tags = {"vsc", "cue", "job", "daily"}
     prerun_cmds = ['export TEST_ENVAR_INSIDE=defined']
     exe = 'print(os.environ["TEST_ENVAR_INSIDE"] == "defined")'
     executable = f"srun python3 -c 'import os;{exe}'"

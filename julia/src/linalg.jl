@@ -1,6 +1,8 @@
-# using Pkg
-# Pkg.update()
-# Pkg.add("BenchmarkTools")
+using Pkg
+Pkg.update()
+Pkg.add("BenchmarkTools")
+Pkg.add("LinearAlgebra")
+Pkg.update()
 
 using LinearAlgebra: similar
 using LinearAlgebra

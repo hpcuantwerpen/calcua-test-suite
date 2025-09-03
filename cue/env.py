@@ -17,7 +17,7 @@ class VSCEnvTest(rfm.RunOnlyRegressionTest):
     num_tasks_per_node = 1
     num_cpus_per_task = 1
     maintainers = ["smoors", "Lewih"]
-    tags = {"vsc", "cue", "env"}
+    tags = {"vsc", "cue", "env", "daily"}
     # expose archspec
     modules = ["ReFrame"]
     prerun_cmds = ["export PYTHONPATH=$PYTHONPATH:$EBROOTREFRAME/external/x86_64"]

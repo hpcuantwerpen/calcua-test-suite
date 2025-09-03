@@ -42,8 +42,9 @@ class JuliaLinalgTest(JuliaLinalgBaseTest):
 
     @run_after('setup')
     def set_var_postrun(self):
-        self.env_vars = {"JULIA_DEPOT_PATH": "$VSC_SCRATCH/rfm_julia_$SLURM_JOBID"}
-        self.postrun_cmds = ['rm -rf $VSC_SCRATCH/rfm_julia_$SLURM_JOBID']
+        folder = f"$VSC_DATA/rfm_julia_{self.current_system.name}_{self.current_partition.name}_{self.current_environ.name}"
+        self.env_vars = {"JULIA_DEPOT_PATH": folder}
+        self.postrun_cmds = [f'rm -rf {folder}']
 
     @run_after('setup')
     def set_options(self):
