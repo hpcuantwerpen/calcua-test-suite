@@ -8,7 +8,7 @@ from reframe.core.backends import getlauncher
 class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
     # build upon existing hpctestlib
     num_nodes = parameter([1, 8])
-    version = parameter(['GROMACS/2021.1-intel-2020a.04-UArecipe-CUDA', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0'])
+    version = parameter(['GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2023.3-foss-2023a-CUDA-12.1.1-PLUMED-2.9.0'])
 
     @run_after('init')
     def skip_invalid(self):
@@ -22,14 +22,13 @@ class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
             self.tags = {'gromacs', 'calcua', 'performance'}
             self.modules = [self.version]
             self.valid_prog_environs = ['standard']
-        elif self.nb_impl == 'gpu' and self.version == 'GROMACS/2021.1-intel-2020a.04-UArecipe-CUDA':
+        elif self.nb_impl == 'gpu' and self.version == 'GROMACS/2023.3-foss-2023a-CUDA-12.1.1-PLUMED-2.9.0':
             self.valid_systems = ['*:nvidia']
             self.tags = {'gromacs', 'calcua', 'performance', 'gpu'}
             self.modules = [self.version]
             self.valid_prog_environs = ['standard']
         else:
              self.skip(f"skipping {self.version} on {self.nb_impl}")
-
 
     @run_before('run')
     def set_options(self):

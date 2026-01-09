@@ -155,7 +155,7 @@ site_configuration = {
                         },
                     ],
                     'extras': {'num_cpus': 64, 'num_gpus': 2},
-                    'features': ['gpu'],
+                    'features': ['gpu', 'nvidia'],
                 }
             ]
         },
@@ -240,7 +240,7 @@ site_configuration = {
                         },
                     ],
                     'extras': {'num_cpus': 28, 'num_gpus': 2},
-                    'features': ['gpu'],
+                    'features': ['gpu', 'nvidia', 'deprecated'],
                 }
             ]
         },

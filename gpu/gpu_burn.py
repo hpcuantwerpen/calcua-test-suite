@@ -5,12 +5,12 @@ import reframe.utility.sanity as sn
 @rfm.simple_test
 class GPU_Burn_nvidia(rfm.RunOnlyRegressionTest):
     descr = "GPU burn test on nvidia node"
-    valid_systems = ["*:nvidia"]
+    valid_systems = ["+nvidia -deprecated"]
     valid_prog_environs = ["CUDA"]
     modules = ['git']
     env_vars = {'CUDAPATH': '$EBROOTCUDA'}
     time_limit = '10m'
-    prerun_cmds = ['git clone https://github.com/wilicc/gpu-burn.git', 'cd gpu-burn', 'make']
+    prerun_cmds = ['git clone https://github.com/wilicc/gpu-burn.git', 'cd gpu-burn']
     executable = '--output=rfm_GPUBURN_nvidia_node-%N.out ./gpu_burn 20'
     tags = {"gpu", "burn", "performance", "vsc"}
     num_devices = 0
@@ -23,11 +23,13 @@ class GPU_Burn_nvidia(rfm.RunOnlyRegressionTest):
             self.num_devices = 4
             self.num_tasks = 1
             self.num_cpus_per_task = 64
+            self.prerun_cmds += ['make']
         if self.current_system.name == 'leibniz':
             # works on 2 nodes
             self.num_devices = 2
             self.num_tasks = 2
             self.num_cpus_per_task = 28
+            self.prerun_cmds += ['COMPUTE=60 make']
         
         self.extra_resources = {'gpu': {'num_gpus': str(self.num_devices)}}
         self.descr = f'Nvidia gpu burn test on {self.current_system.name} with {self.num_devices} gpus'

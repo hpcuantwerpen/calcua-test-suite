@@ -9,7 +9,7 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
     tags = {'hpcc', 'calcua', 'compilation', 'performance'}
     
     def __init__(self):
-        self.valid_systems = ['leibniz:broadwell', 'vaughan:zen2', 'vaughan:zen3']
+        self.valid_systems = ['leibniz:broadwell'] #, 'vaughan:zen2', 'vaughan:zen3']
         self.valid_prog_environs = ['standard']
         self.maintainers = ['Michele Pugno']
         self.postrun_cmds = ['sleep 10'] # let's wait for scratch fs

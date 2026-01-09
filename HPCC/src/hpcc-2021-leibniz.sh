@@ -7,8 +7,8 @@ export NTASKS=${SLURM_NTASKS}
 export EXECHOME=/apps/antwerpen/benchmarks/HPCC-leibniz
 export BMHOME=.
 
-module load calcua/2020a
-module load intel/2020a
+module load calcua/2023a
+module load intel/2023a
 
 BASEDIR=${BMHOME}/HPCC_${NNODES}
 BINDIR=${EXECHOME}/bin
