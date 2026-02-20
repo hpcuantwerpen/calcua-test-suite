@@ -59,7 +59,7 @@ class HaloCellExchangeTest(rfm.RegressionTest):
                 'time_mpi', float)
         }
         self.maintainers = ['Michele Pugno']
-        self.tags = {'halo', 'calcua', 'compilation', 'performance', 'daily'}
+        self.tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance', 'daily'}
 
 
 @rfm.simple_test

@@ -23,7 +23,7 @@ calcua_account_string_tier2 = '-A ap_calcua_staff'
 
 # List of programming environments used in the cpu partitions
 cpu_env_list = ['standard', 'foss-2023a', 'foss-2024a', 'intel-2023a',
-                'foss-2023a_mpi', 'foss-2024a_mpi', 'intel-2023a_mpi', 'intel-2024a', 'intel-2024a_mpi']
+                'foss-2023a_mpi', 'foss-2024a_mpi', 'intel-2023a_mpi', 'intel-2024a', 'intel-2024a_mpi', 'foss-2025a', 'intel-2025a', 'foss-2025a_mpi', 'intel-2025a_mpi']
 
 # Site Configuration
 site_configuration = {
@@ -155,7 +155,7 @@ site_configuration = {
                         },
                     ],
                     'extras': {'num_cpus': 64, 'num_gpus': 2},
-                    'features': ['gpu', 'nvidia'],
+                    'features': ['gpu', 'amd'],
                 }
             ]
         },
@@ -213,18 +213,6 @@ site_configuration = {
                     'max_jobs': 18,
                     'launcher': 'local',
                 },
-                # {
-                #     'name': 'rocky9_test',
-                #     'scheduler': 'slurm',
-                #     'modules': [],
-                #     'access': [calcua_account_string_tier2, '--reservation=rocky9'],
-                #     'environs': cpu_env_list,
-                #     'extras': {'num_cpus': 28},
-                #     'features': ['cpu', 'test'],
-                #     'descr': 'jobs with rocky9 reservation',
-                #     'max_jobs': 18,
-                #     'launcher': 'local',
-                # },
                 {
                     'name': 'nvidia',
                     'scheduler': 'slurm',
@@ -295,34 +283,30 @@ site_configuration = {
         {
             'name': 'foss-2023a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2023a']},
         {
-            'name': 'foss-2023a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2023a'], 'features': ['mpi']},
+            'name': 'foss-2023a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2023a'], 'features': ['mpi', 'fftw']},
         {
             'name': 'foss-2024a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2024a']},
         {
-            'name': 'foss-2024a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2024a'], 'features': ['mpi']},
+            'name': 'foss-2024a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2024a'], 'features': ['mpi', 'fftw']},
+{
+            'name': 'foss-2025a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2025a']},
+        {
+            'name': 'foss-2025a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025a'], 'features': ['mpi']},
         {
             'name': 'intel-2023a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2023a']},
         {
-            'name': 'intel-2023a_mpi', 'cc': 'mpiicc', 'cxx': 'mpiicpc', 'ftn': 'mpiifort', 'modules': ['intel/2023a'], 'features': ['mpi']},
+            'name': 'intel-2023a_mpi', 'cc': 'mpiicc', 'cxx': 'mpiicpc', 'ftn': 'mpiifort', 'modules': ['intel/2023a'], 'features': ['mpi', 'fftw']},
         {
             'name': 'intel-2024a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2024a']},
         {
-            'name': 'intel-2024a_mpi', 'cc': 'mpiicx', 'cxx': 'mpiicpx', 'ftn': 'mpiifx', 'modules': ['intel/2024a'], 'features': ['mpi']},
-
-        # {
-        #     'name': 'foss-2021a', 'cc': 'mpicc', 'cxx': 'mpicxx',
-        #     'ftn': 'mpif90', 'modules': ['foss/2021a'],},
-        # {
-        #     'name': 'intel-2021a',
-        #     'modules': ['intel/2021a'],
-        #     'cc': 'mpiicc',
-        #     'cxx': 'mpiicpc',
-        #     'ftn': 'mpiifort',
-        #     #'target_systems': ['vaughan', 'leibniz']
-        # },
+            'name': 'intel-2024a_mpi', 'cc': 'mpiicx', 'cxx': 'mpiicpx', 'ftn': 'mpiifx', 'modules': ['intel/2024a'], 'features': ['mpi', 'fftw']},
+ {
+            'name': 'intel-2025a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2025a']},
+        {
+            'name': 'intel-2025a_mpi', 'cc': 'mpiicx', 'cxx': 'mpiicpx', 'ftn': 'mpiifx', 'modules': ['intel/2025a'], 'features': ['mpi']},
         {
             'name': 'CUDA',
-            'modules': ['CUDA'],
+            'modules': ['CUDA/12.8.0'],
             'cc': 'nvcc',
             'cxx': 'nvcc',
         },

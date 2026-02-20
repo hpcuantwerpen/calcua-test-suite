@@ -11,7 +11,7 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class FFTWTest(rfm.RegressionTest):
     valid_systems = ['-gpu -test']
-    valid_prog_environs = ['+mpi']
+    valid_prog_environs = ['+mpi +fftw']
     sourcepath = 'fftw_benchmark.c'
     build_system = 'SingleSource'
     launcher = parameter(['mpirun', 'srun'])

@@ -8,7 +8,7 @@ from reframe.core.backends import getlauncher
 class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
     # build upon existing hpctestlib
     num_nodes = parameter([1, 8])
-    version = parameter(['GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2023.3-foss-2023a-CUDA-12.1.1-PLUMED-2.9.0'])
+    version = parameter(['GROMACS/2025.3-foss-2025a', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'])
 
     @run_after('init')
     def skip_invalid(self):
@@ -22,7 +22,7 @@ class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
             self.tags = {'gromacs', 'calcua', 'performance'}
             self.modules = [self.version]
             self.valid_prog_environs = ['standard']
-        elif self.nb_impl == 'gpu' and self.version == 'GROMACS/2023.3-foss-2023a-CUDA-12.1.1-PLUMED-2.9.0':
+        elif self.nb_impl == 'gpu' and 'CUDA' in self.version:
             self.valid_systems = ['*:nvidia']
             self.tags = {'gromacs', 'calcua', 'performance', 'gpu'}
             self.modules = [self.version]
