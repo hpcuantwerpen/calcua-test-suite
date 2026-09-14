@@ -13,13 +13,17 @@ other arguments to reframe.
   --mode=MODE    daily | calcua (default: excludes tags daily and massive) | all
   -h, --help     show this help (for reframe's own help: reframe -h)
 
+Environment:
+  CALCUA_LOGDIR  where output/, stage/, performance/ and reports/ are written
+                 (default: the shared /apps/antwerpen/reframe/logs; e.g. $VSC_DATA/reframe/logs)
+
 Examples:
   ./run_calcua.sh --mode=all --list-tags
   ./run_calcua.sh --mode=all -l -t compilation
   ./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue"
   ./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/...
 
-Output: /apps/antwerpen/reframe/logs/   Docs: README.md
+Output: $CALCUA_LOGDIR, default /apps/antwerpen/reframe/logs/   Docs: README.md
 EOF
 }
 
@@ -47,7 +51,10 @@ if ! $havemode; then
   args=(--mode=calcua "${args[@]}")
 fi
 
-# the log directory is shared: files must be group-writable (group is inherited via setgid on the dirs)
+# where reframe writes; calcua_config.py and push_to_mongo.py read the same variable
+export CALCUA_LOGDIR="${CALCUA_LOGDIR:-/apps/antwerpen/reframe/logs}"
+
+# the default log directory is shared: files must be group-writable (group is inherited via setgid on the dirs)
 umask 002
 
 module load ReFrame/4.9.1
@@ -61,5 +68,5 @@ reframe "${args[@]}"
 if $pushtomongo; then
   echo 'Pushing to mongodb'
   sleep 10
-  "$(dirname "$0")/push_to_mongo.py" >> /apps/antwerpen/reframe/logs/pushtomongo.logs 2>&1
+  "$(dirname "$0")/push_to_mongo.py" >> "$CALCUA_LOGDIR/pushtomongo.logs" 2>&1
 fi

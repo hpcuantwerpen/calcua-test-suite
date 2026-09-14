@@ -2,7 +2,7 @@
 
 Wrapper scripts around [ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) to run the CalcUA test suite on vaughan, leibniz and breniac and push the results to the database.
 
-Requirements: run the scripts from this repo's checkout, `/apps/antwerpen/reframe/testsuite/calcua-test-suite`, on a login node; ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
+Requirements: run the scripts from a checkout of this repo on a login node (the production one is `/apps/antwerpen/reframe/testsuite/calcua-test-suite`; the tests are taken from the `checks/` next to `calcua_config.py`, so a private clone tests its own checks); ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and — unless you set `CALCUA_LOGDIR`, see below — of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
 
 ## Development Status
 
@@ -38,10 +38,10 @@ Both shell scripts take `--help`.
   - starts `./run_calcua.sh --run --push-mongo <options>` there, detached; nothing is printed
 
 - **`./push_to_mongo.py [report] [endpoint]`** — pushes a report to the database.
-  - reads `logs/reports/<report>.json`, default `last-$VSC_INSTITUTE_CLUSTER`
-  - POSTs every test case to `https://10.28.239.250:27016/add_<endpoint>/`, default endpoint `reframe`
+  - reads `$CALCUA_LOGDIR/reports/<report>.json`, default `last-$VSC_INSTITUTE_CLUSTER`
+  - POSTs every test case to `https://service.antwerpen.vsc:27016/add_<endpoint>/`, default endpoint `reframe`
 
-All output lands in `/apps/antwerpen/reframe/logs/`:
+All output lands in `$CALCUA_LOGDIR`, default `/apps/antwerpen/reframe/logs/`. Set it to keep a run out of the shared directory — e.g. `CALCUA_LOGDIR=$VSC_DATA/reframe/logs ./run_calcua.sh ...`; `run.sh` forwards it to the remote runs:
 
 - `output/`, `stage/`, `performance/` — job output, stage directories, performance logs
 - `reports/last-<cluster>.json` — report of the last run, this is what gets pushed
@@ -50,7 +50,7 @@ All output lands in `/apps/antwerpen/reframe/logs/`:
 Layout of this repo:
 
 - `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above
-- `calcua_config.py` — ReFrame config: systems, partitions, environments, modes
+- `calcua_config.py` — ReFrame config: systems, partitions, environments, modes (the modes set the paths above from `CALCUA_LOGDIR` and point `--checkpath` at the `checks/` next to the config)
 - `checks/<test>/` — the tests. ReFrame imports every `.py` under `checks/`, so keep helper scripts out of it
 
 The parent directory `/apps/antwerpen/reframe/testsuite/` also holds `cpuburn/`, `highload/`, `HPCC-vaughan/` (manual stress tests, not part of the suite), `test-suite/` (EESSI) and `vsc-test-suite/` (VSC test suite, also contained in `checks/`).

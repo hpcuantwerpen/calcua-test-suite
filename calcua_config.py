@@ -1,14 +1,21 @@
 from py import builtin
 import os
-import grp
+
+# Where reframe writes output/stage/performance/reports: the shared directory unless
+# CALCUA_LOGDIR is set (e.g. to $VSC_DATA/reframe/logs). run_calcua.sh and push_to_mongo.py read the same variable.
+logdir = os.environ.get('CALCUA_LOGDIR', '/apps/antwerpen/reframe/logs').rstrip('/')
+cluster = os.environ.get('VSC_INSTITUTE_CLUSTER', 'unknown')
+# The checks of this checkout, wherever it lives.
+checkpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'checks')
+
 standard_mode_options = [
     '--exec-policy=async',
-    '--output=/apps/antwerpen/reframe/logs/output/',
-    '--perflogdir=/apps/antwerpen/reframe/logs/performance/',
-    '--stage=/apps/antwerpen/reframe/logs/stage/',
-    '--report-file=/apps/antwerpen/reframe/logs/reports/last-$VSC_INSTITUTE_CLUSTER.json',
+    f'--output={logdir}/output/',
+    f'--perflogdir={logdir}/performance/',
+    f'--stage={logdir}/stage/',
+    f'--report-file={logdir}/reports/last-{cluster}.json',
     '--nocolor',
-    '--checkpath=/apps/antwerpen/reframe/testsuite/calcua-test-suite/checks/'
+    f'--checkpath={checkpath}/'
 ]
 
 

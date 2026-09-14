@@ -10,7 +10,8 @@ Usage: ./run.sh [reframe options ...]
 Pulls the latest calcua-test-suite (this repo), then starts
   ./run_calcua.sh --run --push-mongo <options>
 detached on the login node of every cluster (leibniz, vaughan, breniac) as $username.
-Nothing is printed; results end up in /apps/antwerpen/reframe/logs/.
+Nothing is printed; results end up in /apps/antwerpen/reframe/logs/ (or in
+\$CALCUA_LOGDIR if set: it is forwarded to the remote runs).
 
   -h, --help   show this help
 
@@ -31,7 +32,9 @@ declare -a sites=("login1.leibniz" "login1.vaughan" "login.breniac")
 
 # Re-quote the arguments so values like -t "compilation|cue" survive ssh + bash -c.
 args=$(printf '%q ' "$@")
-remote_cmd="cd $testdir; nohup ./run_calcua.sh --run --push-mongo $args > /dev/null 2>&1 &"
+# ssh does not pass the environment along: forward a CALCUA_LOGDIR override explicitly.
+logdir_override="${CALCUA_LOGDIR:+CALCUA_LOGDIR=$(printf '%q' "$CALCUA_LOGDIR") }"
+remote_cmd="cd $testdir; ${logdir_override}nohup ./run_calcua.sh --run --push-mongo $args > /dev/null 2>&1 &"
 
 for n in "${sites[@]}"; do
   ssh "$username@$n" -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null \

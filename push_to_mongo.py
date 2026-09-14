@@ -7,6 +7,7 @@ from urllib3.exceptions import InsecureRequestWarning
 # first argument is the file to submit
 # second argument is the endpoint
 api_endpoint = 'reframe'
+logdir = os.getenv('CALCUA_LOGDIR', '/apps/antwerpen/reframe/logs').rstrip('/')   # same default as calcua_config.py
 report_name = f'last-{os.getenv("VSC_INSTITUTE_CLUSTER")}'
 if len(sys.argv) > 1:
     report_name = sys.argv[1]
@@ -15,7 +16,7 @@ if len(sys.argv) > 1:
 
 # Suppress only the single warning from urllib3 needed.
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
-with open(f'/apps/antwerpen/reframe/logs/reports/{report_name}.json') as json_file:
+with open(f'{logdir}/reports/{report_name}.json') as json_file:
     content = json.loads(json_file.read())
 
 for element in content["runs"]:
