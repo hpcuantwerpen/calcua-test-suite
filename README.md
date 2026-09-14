@@ -2,9 +2,7 @@
 
 Wrapper scripts around [ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) to run the CalcUA test suite on vaughan, leibniz and breniac and push the results to the database.
 
-The scripts live one level above this repo, in `/apps/antwerpen/reframe/testsuite/`, where the repo is checked out as `calcua-test-suite/`.
-
-Requirements: run the scripts from `/apps/antwerpen/reframe/testsuite` on a login node; ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
+Requirements: run the scripts from this repo's checkout, `/apps/antwerpen/reframe/testsuite/calcua-test-suite`, on a login node; ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
 
 ## Development Status
 
@@ -27,13 +25,13 @@ TODOs:
 Both shell scripts take `--help`.
 
 - **`./run_calcua.sh [--push-mongo] [reframe options]`** — runs the suite on the cluster you are logged in to.
-  - loads `ReFrame/4.9.1` and points it at `calcua-test-suite/calcua_config.py`
+  - loads `ReFrame/4.9.1` and points it at `calcua_config.py`
   - every other option is passed to `reframe` unchanged
   - `--push-mongo` runs `push_to_mongo.py` after the run
   - without `--mode`, `--mode=calcua` is used (see [Modes](#modes))
 
 - **`./run.sh [reframe options]`** — runs the suite on all clusters.
-  - `git pull`s `calcua-test-suite`
+  - `git pull`s this repo
   - ssh'es as the current user to `login1.leibniz`, `login1.vaughan` and `login.breniac`
   - starts `./run_calcua.sh --run --push-mongo <options>` there, detached; nothing is printed
 
@@ -47,13 +45,13 @@ All output lands in `/apps/antwerpen/reframe/logs/`:
 - `reports/last-<cluster>.json` — report of the last run, this is what gets pushed
 - `pushtomongo.logs` — output of `push_to_mongo.py`
 
-Layout of `/apps/antwerpen/reframe/testsuite/`:
+Layout of this repo:
 
-- `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above (not in git)
-- `calcua-test-suite/` — this repo: the tests and `calcua_config.py`
-- `cpuburn/`, `highload/`, `HPCC-vaughan/` — manual stress tests, not part of the suite
-- `test-suite/` — EESSI test suite
-- `vsc-test-suite/` — VSC test suite (also contained in `calcua-test-suite`)
+- `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above
+- `calcua_config.py` — ReFrame config: systems, partitions, environments, modes
+- `checks/<test>/` — the tests. ReFrame imports every `.py` under `checks/`, so keep helper scripts out of it
+
+The parent directory `/apps/antwerpen/reframe/testsuite/` also holds `cpuburn/`, `highload/`, `HPCC-vaughan/` (manual stress tests, not part of the suite), `test-suite/` (EESSI) and `vsc-test-suite/` (VSC test suite, also contained in `checks/`).
 
 ## Tags
 
@@ -138,7 +136,7 @@ Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid
 **I made a new toolchain and want to test it** — add it as an environment in a derived config, then select it with `-p`:
 
 ```python
-# calcua-test-suite/myconfig.py
+# myconfig.py, next to calcua_config.py
 from calcua_config import *
 
 site_configuration['environments'].append(
@@ -147,7 +145,7 @@ cpu_env_list.append('foss-2025b')   # the cpu partitions reference this list
 ```
 
 ```bash
-./run_calcua.sh --run --mode=all --system=vaughan:default -C calcua-test-suite/myconfig.py -p foss-2025b -t compilation
+./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -p foss-2025b -t compilation
 ```
 
 **I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):

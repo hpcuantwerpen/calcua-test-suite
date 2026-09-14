@@ -8,7 +8,7 @@ standard_mode_options = [
     '--stage=/apps/antwerpen/reframe/logs/stage/',
     '--report-file=/apps/antwerpen/reframe/logs/reports/last-$VSC_INSTITUTE_CLUSTER.json',
     '--nocolor',
-    '--checkpath=/apps/antwerpen/reframe/testsuite/calcua-test-suite/'
+    '--checkpath=/apps/antwerpen/reframe/testsuite/calcua-test-suite/checks/'
 ]
 
 
