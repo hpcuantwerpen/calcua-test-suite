@@ -10,7 +10,7 @@ from tools_list import tools, standard_partitions_tool_test
 
 @rfm.simple_test
 class VSCToolAvailabilityTest(rfm.RunOnlyRegressionTest):
-    tool = parameter(tools.keys())
+    tool = parameter(tools.keys(), type=str)
     valid_systems = ["+login", "+default", "+test"]
     valid_prog_environs = ["standard"]
     time_limit = '1m'
@@ -70,7 +70,7 @@ class VSCToolVersionTest(rfm.RunOnlyRegressionTest):
     for x in tools.keys():
         if 'minver' in tools[x].keys():
             targets += [x]
-    tool = parameter(targets)
+    tool = parameter(targets, type=str)
     valid_systems = ["+login", "+default", "+test"]
     valid_prog_environs = ["standard"]
     time_limit = '1m'

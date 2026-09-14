@@ -5,7 +5,7 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class HPCCTest(rfm.RunOnlyRegressionTest):
-    num_nodes = parameter([1, 8, 24])
+    num_nodes = parameter([1, 8, 24], type=int)
     tags = {'hpcc', 'calcua', 'compilation', 'performance'}
     
     def __init__(self):

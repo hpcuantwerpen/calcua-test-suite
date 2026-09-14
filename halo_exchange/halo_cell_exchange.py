@@ -64,7 +64,7 @@ class HaloCellExchangeTest(rfm.RegressionTest):
 
 @rfm.simple_test
 class HaloCellExchange(HaloCellExchangeTest):
-    launcher = parameter(['mpirun', 'srun'])
+    launcher = parameter(['mpirun', 'srun'], type=str)
     
     def __init__(self):
         super().__init__()

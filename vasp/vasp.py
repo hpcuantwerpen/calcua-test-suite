@@ -18,11 +18,11 @@ KPAR = {kpar}
 @rfm.simple_test
 class vasp_test(rfm.RunOnlyRegressionTest):
     valid_systems = ['+default']
-    version = parameter(['VASP/6.5.1-intel-2024a-Wannier90-3.1.0-HDF5-1.14.5-DFTD4-3.7.0'])
+    version = parameter(['VASP/6.5.1-intel-2024a-Wannier90-3.1.0-HDF5-1.14.5-DFTD4-3.7.0'], type=str)
     valid_prog_environs = ['standard']
     executable = 'vasp_std'
     tags = {'calcua', 'performance', 'vasp'}
-    num_nodes = parameter([4, 10])
+    num_nodes = parameter([4, 10], type=int)
     time_limit = '1h'
 
     @run_before('run')

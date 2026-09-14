@@ -6,11 +6,11 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class QECheck(rfm.RunOnlyRegressionTest):
     valid_systems = ['+cpu -login -default']
-    version = parameter(['QuantumESPRESSO/7.4-foss-2024a', 'QuantumESPRESSO/7.2-foss-2023a'])
+    version = parameter(['QuantumESPRESSO/7.4-foss-2024a', 'QuantumESPRESSO/7.2-foss-2023a'], type=str)
     valid_prog_environs = ['standard']
     executable = 'pw.x'
     tags = {'calcua', 'performance', 'quantumespresso'}
-    num_nodes = parameter([1,8])
+    num_nodes = parameter([1, 8], type=int)
     #allref =
 
     @run_before('run')

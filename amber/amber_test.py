@@ -9,9 +9,9 @@ class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
     valid_systems = ['+default', '+test -login']
     tags = {'amber', 'calcua', 'performance', 'cpu'}
-    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'])
+    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'], type=str)
     valid_prog_environs = ['standard'] 
-    num_nodes = parameter([2])
+    num_nodes = parameter([2], type=int)
     
     @run_after('init')
     def skip_invalid(self):
@@ -34,7 +34,7 @@ class amber_gpu(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
     valid_systems = ['*:nvidia']
     tags = {'amber', 'calcua', 'performance', 'gpu'}
-    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1'])
+    version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10-CUDA-12.1.1'], type=str)
     valid_prog_environs = ['standard'] 
     # variant = parameter(['cuda'], loggable=True) # override parent class, gpu only
 

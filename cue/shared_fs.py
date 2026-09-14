@@ -11,8 +11,8 @@ from shared_fs_list import shared_fs, shared_fs_sites
 @rfm.simple_test
 class VSCSharedFSMountTest(rfm.RunOnlyRegressionTest):
     descr = "test shared filesystem mount point "
-    fs = parameter(shared_fs.keys())
-    site = parameter(shared_fs_sites)
+    fs = parameter(shared_fs.keys(), type=str)
+    site = parameter(shared_fs_sites, type=str)
     valid_systems = ["+cpu -gpu"]
     valid_prog_environs = ["standard"]
     maintainers = ['rverschoren']
@@ -50,7 +50,7 @@ class VSCSharedFSAccountDir(rfm.RunOnlyRegressionTest):
     for x in shared_fs.keys():
         if 'envar' in shared_fs[x].keys():
             targets += [x]
-    fs = parameter(targets)
+    fs = parameter(targets, type=str)
     valid_systems = ["+cpu -gpu"]
     valid_prog_environs = ["standard"]
     maintainers = ['rverschoren']

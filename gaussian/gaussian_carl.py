@@ -6,7 +6,7 @@ from reframe.core.backends import getlauncher
 
 @rfm.simple_test
 class GaussianCheck(rfm.RunOnlyRegressionTest):
-    version = parameter(['Gaussian/g16_c01-avx2'])
+    version = parameter(['Gaussian/g16_c01-avx2'], type=str)
     valid_systems = ['vaughan:default']
     valid_prog_environs = ['standard']
     executable = 'g16'

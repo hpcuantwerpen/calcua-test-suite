@@ -7,8 +7,8 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
     # build upon existing hpctestlib
-    num_nodes = parameter([1, 8])
-    version = parameter(['GROMACS/2025.3-foss-2025a', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'])
+    num_nodes = parameter([1, 8], type=int)
+    version = parameter(['GROMACS/2025.3-foss-2025a', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'], type=str)
 
     @run_after('init')
     def skip_invalid(self):

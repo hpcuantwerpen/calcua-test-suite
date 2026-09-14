@@ -4,7 +4,7 @@ from reframe.core.backends import getlauncher
 
 
 class NamdBaseTest(rfm.RunOnlyRegressionTest):
-    num_nodes = parameter([1, 2, 4, ])
+    num_nodes = parameter([1, 2, 4], type=int)
 
     def __init__(self, arch):
         self.descr = f'NAMD check on {arch}, number of nodes: {self.num_nodes}, apoa1 and stmv(4 nodes only)'
@@ -46,7 +46,7 @@ class NamdBaseTest(rfm.RunOnlyRegressionTest):
 class Namd_CPUTest(NamdBaseTest):
     # NAMD notSMP CPU test
     # mpi build may seem not SMP
-    version = parameter(['NAMD/2.14-foss-2023a-mpi', 'NAMD/3.0-foss-2024a-mpi'])
+    version = parameter(['NAMD/2.14-foss-2023a-mpi', 'NAMD/3.0-foss-2024a-mpi'], type=str)
 
     def __init__(self):
         self.time_limit = '20m'

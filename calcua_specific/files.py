@@ -10,7 +10,7 @@ all_files = {
 @rfm.simple_test
 class CalcuaExistTest(rfm.RunOnlyRegressionTest):
     descr = "test file exists "
-    fs = parameter(all_files.keys())
+    fs = parameter(all_files.keys(), type=str)
     valid_prog_environs = ["standard"]
     maintainers = ['lewih']
     time_limit = '1m'
@@ -43,7 +43,7 @@ class CalcuaExistTest(rfm.RunOnlyRegressionTest):
 @rfm.simple_test
 class CalcuaModeTest(rfm.RunOnlyRegressionTest):
     descr = "test file permissions "
-    fs = parameter(all_files.keys())
+    fs = parameter(all_files.keys(), type=str)
     valid_prog_environs = ["standard"]
     maintainers = ['lewih']
     time_limit = '1m'

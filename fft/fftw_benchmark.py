@@ -14,7 +14,7 @@ class FFTWTest(rfm.RegressionTest):
     valid_prog_environs = ['+mpi +fftw']
     sourcepath = 'fftw_benchmark.c'
     build_system = 'SingleSource'
-    launcher = parameter(['mpirun', 'srun'])
+    launcher = parameter(['mpirun', 'srun'], type=str)
 
     flags = variable(dict, value={
         'foss-2023a_mpi':   ['-O2', '-lfftw3'],

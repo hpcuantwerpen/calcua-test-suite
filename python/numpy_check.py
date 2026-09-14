@@ -4,7 +4,7 @@ import reframe.utility.sanity as sn
 
 @rfm.simple_test
 class NumpyTest(rfm.RunOnlyRegressionTest):
-    version = parameter(["SciPy-bundle/2025.06-gfbf-2025a", "SciPy-bundle/2024.05-gfbf-2024a", "SciPy-bundle/2023.07-gfbf-2023a"])
+    version = parameter(["SciPy-bundle/2025.06-gfbf-2025a", "SciPy-bundle/2024.05-gfbf-2024a", "SciPy-bundle/2023.07-gfbf-2023a"], type=str)
 
     def __init__(self):
         self.descr = 'Test a few typical numpy operations'

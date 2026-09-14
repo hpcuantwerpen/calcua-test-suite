@@ -6,7 +6,7 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class AbinitCheck(rfm.RunOnlyRegressionTest):
     valid_systems = ['vaughan:default', 'leibniz:default']
-    version = parameter(['ABINIT/10.2.5-intel-2023a'])
+    version = parameter(['ABINIT/10.2.5-intel-2023a'], type=str)
     valid_prog_environs = ['standard']  # standard, builtin also ok
     executable = 'abinit'
     tags = {'calcua', 'performance', 'abinit'}

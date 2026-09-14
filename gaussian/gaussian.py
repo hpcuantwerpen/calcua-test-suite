@@ -26,7 +26,7 @@ class GaussianBaseTest(rfm.RunOnlyRegressionTest):
 
 @rfm.simple_test
 class GaussianCPUTest(GaussianBaseTest):
-    version = parameter(['Gaussian/g16_c01-avx2'])
+    version = parameter(['Gaussian/g16_c01-avx2'], type=str)
     def __init__(self):
         super().__init__()
         self.valid_systems = ['+cpu -default -login -test']

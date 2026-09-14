@@ -9,7 +9,7 @@ from envars_list import envars
 @rfm.simple_test
 class VSCEnvTest(rfm.RunOnlyRegressionTest):
     descr = "test environment variable "
-    envar = parameter(envars.keys())
+    envar = parameter(envars.keys(), type=str)
     valid_systems = ["+default", "+login", "+test"]
     valid_prog_environs = ["standard"]
     time_limit = '1m'
