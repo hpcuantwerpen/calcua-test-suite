@@ -2,7 +2,9 @@
 
 Wrapper scripts around [ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) to run the CalcUA test suite on vaughan, leibniz and breniac and push the results to the database.
 
-Requirements: run from `/apps/antwerpen/reframe/testsuite` on a login node; ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
+The scripts live one level above this repo, in `/apps/antwerpen/reframe/testsuite/`, where the repo is checked out as `calcua-test-suite/`.
+
+Requirements: run the scripts from `/apps/antwerpen/reframe/testsuite` on a login node; ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
 
 ## Development Status
 
@@ -45,9 +47,10 @@ All output lands in `/apps/antwerpen/reframe/logs/`:
 - `reports/last-<cluster>.json` — report of the last run, this is what gets pushed
 - `pushtomongo.logs` — output of `push_to_mongo.py`
 
-Other directories:
+Layout of `/apps/antwerpen/reframe/testsuite/`:
 
-- `calcua-test-suite/` — the tests and `calcua_config.py`
+- `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above (not in git)
+- `calcua-test-suite/` — this repo: the tests and `calcua_config.py`
 - `cpuburn/`, `highload/`, `HPCC-vaughan/` — manual stress tests, not part of the suite
 - `test-suite/` — EESSI test suite
 - `vsc-test-suite/` — VSC test suite (also contained in `calcua-test-suite`)
