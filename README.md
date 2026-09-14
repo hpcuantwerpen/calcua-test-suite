@@ -125,43 +125,43 @@ Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a
 
 ## Use cases
 
-**I changed the image / Slurm / ... and want to test it on a reservation** — target the nodes with `--system` and `-J`, pick the tests by tag:
+- **I changed the image / Slurm / ... and want to test it on a reservation** — target the nodes with `--system` and `-J`, pick the tests by tag:
 
-```bash
-./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue"
-```
+    ```bash
+    ./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue"
+    ```
 
-Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid on `default`/`login` partitions.
+    Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid on `default`/`login` partitions.
 
-**I specified a partition, but now there are no tests anymore** — overwrite the valid systems of the test:
+- **I specified a partition, but now there are no tests anymore** — overwrite the valid systems of the test:
 
-```bash
-./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -P valid_systems='*' -n halo
-```
+    ```bash
+    ./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -P valid_systems='*' -n halo
+    ```
 
-The same can happen with the valid environments: `valid_prog_environs`.
+    The same can happen with the valid environments: `valid_prog_environs`.
 
-**I made a new toolchain and want to test it** — add it as an environment in a derived config, then select it with `-p`:
+- **I made a new toolchain and want to test it** — add it as an environment in a derived config, then select it with `-p`:
 
-```python
-# myconfig.py, next to calcua_config.py
-from calcua_config import *
+    ```python
+    # myconfig.py, next to calcua_config.py
+    from calcua_config import *
+    
+    site_configuration['environments'].append(
+        {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
+    cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
+    ```
 
-site_configuration['environments'].append(
-    {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
-cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
-```
+    ```bash
+    ./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -p foss-2025b_mpi -t compilation
+    ```
 
-```bash
-./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -p foss-2025b_mpi -t compilation
-```
+- **I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
 
-**I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
-
-```bash
-./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
-```
-
-Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `Namd_CPUTest`, `NumpyTest`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to the `version = parameter([...], type=str)` line in the test. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
-
-Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
+    ```bash
+    ./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
+    ```
+    
+    Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `Namd_CPUTest`, `NumpyTest`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to the `version = parameter([...], type=str)` line in the test. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
+    
+    Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
