@@ -15,6 +15,8 @@ In Progress:
     - Upgrade Amber tests and improve command line documentation
 - [ ] Completion of [issue 3491](https://github.com/reframe-hpc/reframe/issues/3491)
     - Update DB and grafana
+- [ ] Completion of [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)
+    - `-p/--prgenv` has no effect when `--mode` is used; until fixed use `-S valid_prog_environs=...`
 
 TODOs:
 - [ ] Compile HPCC with toolchains >= 2023a
@@ -107,7 +109,7 @@ All modes set the output/stage/perflog/report paths. When selecting tests by han
 | `leibniz` | `login` (login), `default` (cpu, default), `broadwell`, `broadwell_256` (cpu), `nvidia` (gpu) |
 | `breniac` | `login` (login), `default` (cpu, default), `skylake` (cpu) |
 
-Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,2025a}[_mpi]`, `CUDA`.
+Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,2025a}[_mpi]`, `CUDA`.
 
 ## Most used ReFrame options
 
@@ -116,12 +118,15 @@ Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a
 | `-l` / `-r` | list / run the selected tests |
 | `-t TAG`, `-T TAG` | select / exclude by tag (regex) |
 | `-n NAME` | select by test name (regex) |
-| `-p ENV` | select programming environment |
+| `-p ENV` | **ignored when `--mode` is set** ([issue 3734](https://github.com/reframe-hpc/reframe/issues/3734), up to 4.10.3), and `run_calcua.sh` always sets a mode. Use the next row instead |
+| `-S [TEST.]valid_prog_environs=E1,E2` | run only in the listed environments (same for `valid_systems`) |
 | `--mode=MODE`, `--system=SYS[:PART]` | mode / system from the config file |
 | `-J OPT` | pass an option to Slurm, e.g. `-J reservation=myres` |
 | `-S [TEST.]VAR=VAL` | override a test *variable* |
 | `-P [TEST.]PARAM=VAL0,VAL1` | override a test *parameter* (ReFrame >= 4.9) |
 | `-C FILE` | use another config file |
+
+`-S` sets a variable *before* the test is instantiated, so a test that assigns it in `__init__` or a hook wins. All tests declare `valid_systems`/`valid_prog_environs` at class level except `gromacs`, `cue` tools and `calcua_specific`, which compute them from their parameters and cannot be overridden.
 
 ## Use cases
 
@@ -133,7 +138,11 @@ Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a
 
     Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid on `default`/`login` partitions.
 
+<<<<<<< HEAD
 - **I specified a partition, but now there are no tests anymore** — overwrite the valid systems of the test:
+=======
+**I made a new toolchain and want to test it** — add it as an environment in a derived config, then restrict the tests to it with `-S valid_prog_environs` (`-p` is broken with `--mode`, [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)):
+>>>>>>> 0435bc2 (Update tests to modern standard. Update readme.)
 
     ```bash
     ./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -P valid_systems='*' -n halo
@@ -141,6 +150,7 @@ Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a
 
     The same can happen with the valid environments: `valid_prog_environs`.
 
+<<<<<<< HEAD
 - **I made a new toolchain and want to test it** — add it as an environment in a derived config, then select it with `-p`:
 
     ```python
@@ -151,6 +161,15 @@ Environments (`-p`): `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a
         {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
     cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
     ```
+=======
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t basic -S valid_prog_environs=foss-2025b
+```
+
+MPI tests (`fftw`, `halo`, `micro` mpi) need an `_mpi` environment: define `foss-2025b_mpi` the same way and run them with `-S valid_prog_environs=foss-2025b_mpi`.
+
+**I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
+>>>>>>> 0435bc2 (Update tests to modern standard. Update readme.)
 
     ```bash
     ./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -p foss-2025b_mpi -t compilation

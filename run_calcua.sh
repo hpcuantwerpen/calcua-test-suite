@@ -32,6 +32,10 @@ for a in "$@"; do
     -h|--help)       usage; exit 0 ;;
     --push-mongo)    pushtomongo=true ;;
     --mode|--mode=*) havemode=true; args+=("$a") ;;
+    -p|-p*|--prgenv|--prgenv=*)
+                     echo "warning: ReFrame ignores $a when --mode is set (bug, <= 4.10.3);" \
+                          "use -S valid_prog_environs=ENV1,ENV2 instead" >&2
+                     args+=("$a") ;;
     *)               args+=("$a") ;;
   esac
 done

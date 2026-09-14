@@ -8,8 +8,12 @@ import reframe.utility.sanity as sn
 
 
 class MatlabLinalgBaseTest(rfm.RunOnlyRegressionTest):
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_prog_environs = ['standard']
+    tags = {'apps', 'matlab', 'performance', 'vsc'}
+    maintainers = ['Lewih']
+
     def __init__(self):
-        self.valid_prog_environs = ['standard']
         self.modules = ['MATLAB']
 
         self.perf_patterns = {
@@ -30,16 +34,12 @@ class MatlabLinalgBaseTest(rfm.RunOnlyRegressionTest):
         self.executable = 'cat'
         self.executable_opts = ['linalg.m | matlab -nodesktop -nosplash']
         self.num_tasks_per_node = 1
-        self.tags = {'apps', 'matlab', 'performance', 'vsc'}
-        self.maintainers = ['Lewih']
         self.descr = 'Test a few typical Matlab operations'
 
 
 @rfm.simple_test
 class MatlabLinalgTest(MatlabLinalgBaseTest):
-    def __init__(self):
-        super().__init__()
-        self.valid_systems = ['+default']
+    valid_systems = ['+default']
 
     @run_before('run')
     def setup_run(self):

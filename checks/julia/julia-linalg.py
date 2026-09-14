@@ -3,24 +3,27 @@ import reframe.utility.sanity as sn
 
 
 class JuliaLinalgBaseTest(rfm.RunOnlyRegressionTest):
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_prog_environs = ['standard']
+    tags = {'apps', 'julia', '1nodes', 'performance', 'vsc'}
+    maintainers = ['Lewih']
+
     def __init__(self):
-        self.valid_prog_environs = ['standard']
         self.sanity_patterns = sn.assert_found(r'Julia version:*',
                                                self.stdout)
         self.modules = ['Julia']
         self.executable = 'julia'
         self.executable_opts = ['linalg.jl']
-        self.tags = {'apps', 'julia', '1nodes', 'performance', 'vsc'}
-        self.maintainers = ['Lewih']
         self.time_limit = '10m'
 
 
 @rfm.simple_test
 class JuliaLinalgTest(JuliaLinalgBaseTest):
+    valid_systems = ['+cpu']
+
     def __init__(self):
         super().__init__()
         self.descr = 'Test a few typical Julia LinAlg operations'
-        self.valid_systems = ['+cpu']
         self.num_tasks_per_node = 1
         self.num_cpus_per_task = 20
         self.tags.add('performance')

@@ -5,6 +5,8 @@ from reframe.core.backends import getlauncher
 
 class NamdBaseTest(rfm.RunOnlyRegressionTest):
     num_nodes = parameter([1, 2, 4], type=int)
+    tags = {'apps', 'namd', 'performance', 'vsc'}
+    maintainers = ['Lewih']
 
     def __init__(self, arch):
         self.descr = f'NAMD check on {arch}, number of nodes: {self.num_nodes}, apoa1 and stmv(4 nodes only)'
@@ -20,9 +22,6 @@ class NamdBaseTest(rfm.RunOnlyRegressionTest):
                 self.stdout, 'days_ns', float))
         }
 
-        self.maintainers = ['Lewih']
-
-        self.tags = {'apps', 'namd', 'performance', 'vsc'}
         self.tags.add(f'{self.num_nodes}nodes')
 
     def download_material(self):
@@ -47,13 +46,12 @@ class Namd_CPUTest(NamdBaseTest):
     # NAMD notSMP CPU test
     # mpi build may seem not SMP
     version = parameter(['NAMD/2.14-foss-2023a-mpi', 'NAMD/3.0-foss-2024a-mpi'], type=str)
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_systems = ['+default']
+    valid_prog_environs = ['standard']
 
     def __init__(self):
         self.time_limit = '20m'
-
-        self.valid_systems = ['+default']
-
-        self.valid_prog_environs = ['standard']
         super().__init__('cpu')
 
     @run_before('run')

@@ -5,10 +5,14 @@ import reframe.utility.sanity as sn
 @rfm.simple_test
 class NumpyTest(rfm.RunOnlyRegressionTest):
     version = parameter(["SciPy-bundle/2025.06-gfbf-2025a", "SciPy-bundle/2024.05-gfbf-2024a", "SciPy-bundle/2023.07-gfbf-2023a"], type=str)
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_systems = ['+default', '+test']
+    valid_prog_environs = ['standard']
+    tags = {'apps', 'python', 'numpy', 'performance', 'vsc'}
+    maintainers = ['Lewih']
 
     def __init__(self):
         self.descr = 'Test a few typical numpy operations'
-        self.valid_prog_environs = ['standard']
         self.time_limit = '20m'
 
         self.perf_patterns = {
@@ -36,9 +40,6 @@ class NumpyTest(rfm.RunOnlyRegressionTest):
         self.executable = 'python3'
         self.executable_opts = ['np_ops.py']
         # self.use_multithreading = False
-        self.tags = {'apps', 'python', 'numpy', 'performance', 'vsc'}
-        self.maintainers = ['Lewih']
-        self.valid_systems = ['+default', '+test']
 
     @run_before('run')
     def setup_run(self):

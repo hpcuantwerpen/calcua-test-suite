@@ -9,12 +9,16 @@ from reframe.core.backends import getlauncher
 
 
 class HaloCellExchangeTest(rfm.RegressionTest):
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_systems = ['+default']
+    valid_prog_environs = ['+mpi']
+    maintainers = ['Michele Pugno']
+    tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance', 'daily'}
+
     def __init__(self):
         self.sourcepath = 'halo_cell_exchange.c'
         self.build_system = 'SingleSource'
         self.build_system.cflags = ['-O2']
-        self.valid_systems = ['+default']
-        self.valid_prog_environs = ['+mpi']
         self.executable_opts = ['input.txt']
 
         self.sanity_patterns = sn.assert_eq(
@@ -58,8 +62,6 @@ class HaloCellExchangeTest(rfm.RegressionTest):
                 r' \S+ (?P<time_mpi>\S+)', self.stdout,
                 'time_mpi', float)
         }
-        self.maintainers = ['Michele Pugno']
-        self.tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance', 'daily'}
 
 
 @rfm.simple_test

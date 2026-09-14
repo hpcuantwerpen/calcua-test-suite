@@ -7,11 +7,12 @@ from reframe.core.backends import getlauncher
 class HPCCTest(rfm.RunOnlyRegressionTest):
     num_nodes = parameter([1, 8, 24], type=int)
     tags = {'hpcc', 'calcua', 'compilation', 'performance'}
-    
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_systems = ['leibniz:broadwell'] #, 'vaughan:zen2', 'vaughan:zen3']
+    valid_prog_environs = ['standard']
+    maintainers = ['Michele Pugno']
+
     def __init__(self):
-        self.valid_systems = ['leibniz:broadwell'] #, 'vaughan:zen2', 'vaughan:zen3']
-        self.valid_prog_environs = ['standard']
-        self.maintainers = ['Michele Pugno']
         self.postrun_cmds = ['sleep 10'] # let's wait for scratch fs
         if int(self.num_nodes) > 8:
             self.tags.add('massive')

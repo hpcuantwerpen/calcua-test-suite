@@ -6,9 +6,11 @@ import os
 
 
 class GaussianBaseTest(rfm.RunOnlyRegressionTest):
-    def __init__(self):
-        self.valid_prog_environs = ['standard']
+    # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_prog_environs = ['standard']
+    maintainers = ['Lewih']
 
+    def __init__(self):
         self.sanity_patterns = sn.assert_found(r' Normal termination of Gaussian',
                                                self.stdout)
         self.perf_patterns = {
@@ -21,17 +23,12 @@ class GaussianBaseTest(rfm.RunOnlyRegressionTest):
                 self.stderr, 'seconds', float) / 60.0)
         }
 
-        self.maintainers = ['Lewih']
-
 
 @rfm.simple_test
 class GaussianCPUTest(GaussianBaseTest):
     version = parameter(['Gaussian/g16_c01-avx2'], type=str)
-    def __init__(self):
-        super().__init__()
-        self.valid_systems = ['+cpu -default -login -test']
-        self.tags = {'apps', 'gaussian', 'performance', 'vsc'}
-
+    valid_systems = ['+cpu -default -login -test']
+    tags = {'apps', 'gaussian', 'performance', 'vsc'}
 
     @run_after('setup')
     def set_num_cpus(self):
