@@ -8,10 +8,12 @@ import reframe.utility.sanity as sn
 from reframe.core.backends import getlauncher
 
 
-class HaloCellExchangeTest(rfm.RegressionTest):
+@rfm.simple_test
+class HaloCellExchange(rfm.RegressionTest):
     # class-level so that -S valid_systems/valid_prog_environs=... can override them
     valid_systems = ['+default']
     valid_prog_environs = ['+mpi']
+    launcher = parameter(['mpirun', 'srun'], type=str)
     maintainers = ['Michele Pugno']
     tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance', 'daily'}
 
@@ -62,14 +64,6 @@ class HaloCellExchangeTest(rfm.RegressionTest):
                 r' \S+ (?P<time_mpi>\S+)', self.stdout,
                 'time_mpi', float)
         }
-
-
-@rfm.simple_test
-class HaloCellExchange(HaloCellExchangeTest):
-    launcher = parameter(['mpirun', 'srun'], type=str)
-    
-    def __init__(self):
-        super().__init__()
 
     @run_before('run')
     def set_num_cpus(self):

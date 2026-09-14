@@ -2,27 +2,22 @@ import reframe as rfm
 import reframe.utility.sanity as sn
 
 
-class JuliaLinalgBaseTest(rfm.RunOnlyRegressionTest):
+@rfm.simple_test
+class JuliaLinalgTest(rfm.RunOnlyRegressionTest):
     # class-level so that -S valid_systems/valid_prog_environs=... can override them
+    valid_systems = ['+cpu']
     valid_prog_environs = ['standard']
     tags = {'apps', 'julia', '1nodes', 'performance', 'vsc'}
     maintainers = ['Lewih']
+    modules = ['Julia']
 
     def __init__(self):
+
         self.sanity_patterns = sn.assert_found(r'Julia version:*',
                                                self.stdout)
-        self.modules = ['Julia']
         self.executable = 'julia'
         self.executable_opts = ['linalg.jl']
         self.time_limit = '10m'
-
-
-@rfm.simple_test
-class JuliaLinalgTest(JuliaLinalgBaseTest):
-    valid_systems = ['+cpu']
-
-    def __init__(self):
-        super().__init__()
         self.descr = 'Test a few typical Julia LinAlg operations'
         self.num_tasks_per_node = 1
         self.num_cpus_per_task = 20
