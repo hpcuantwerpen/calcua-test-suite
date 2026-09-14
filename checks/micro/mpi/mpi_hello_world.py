@@ -19,11 +19,12 @@ class MPIHelloWorldTest(rfm.RegressionTest):
     num_cpus_per_task = 1
     executable = 'mpi_hello_world'
     sourcesdir = 'src_mpi_hello_world'
+    launcher = parameter(['mpirun', 'srun'], type=str)
     tags = {"vsc", "micro", "mpi", "daily"}
 
     @run_before('run')
     def set_launcher(self):
-        self.job.launcher = getlauncher('srun')()
+        self.job.launcher = getlauncher(self.launcher)()
 
     @sanity_function
     def assert_number_of_hellos(self):
