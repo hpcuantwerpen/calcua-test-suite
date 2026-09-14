@@ -1,5 +1,4 @@
 import os
-from pkg_resources import parse_version as version
 import reframe as rfm
 import reframe.utility.sanity as sn
 import sys
