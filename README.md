@@ -138,35 +138,6 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
 
     Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid on `default`/`login` partitions.
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-- **I specified a partition, but now there are no tests anymore** — overwrite the valid systems of the test:
-=======
-**I made a new toolchain and want to test it** — add it as an environment in a derived config, then restrict the tests to it with `-S valid_prog_environs` (`-p` is broken with `--mode`, [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)):
->>>>>>> 0435bc2 (Update tests to modern standard. Update readme.)
-
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -P valid_systems='*' -n halo
-    ```
-
-    The same can happen with the valid environments: `valid_prog_environs`.
-
-<<<<<<< HEAD
-- **I made a new toolchain and want to test it** — add it as an environment in a derived config, then select it with `-p`:
-
-    ```python
-    # myconfig.py, next to calcua_config.py
-    from calcua_config import *
-    
-    site_configuration['environments'].append(
-        {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
-    cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
-    ```
-=======
-```bash
-./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t basic -S valid_prog_environs=foss-2025b
-```
-=======
 - **I specified a partition, but now there are no tests anymore** — the tests are not valid there (see [Systems](#systems)); overwrite their `valid_systems`:
 
     ```bash
@@ -176,21 +147,11 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
     The same can happen with the environments: `-S valid_prog_environs=...`. Use `-S`, not `-P`: these are variables, and `-P` would turn them into a parameter.
 
 - **I made a new toolchain and want to test it** — add it as an environment in a derived config, then restrict the tests to it with `-S valid_prog_environs` (`-p` is broken with `--mode`, [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)):
->>>>>>> 2df0a1d (Update readme)
 
     ```python
     # myconfig.py, next to calcua_config.py
     from calcua_config import *
 
-<<<<<<< HEAD
-**I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
->>>>>>> 0435bc2 (Update tests to modern standard. Update readme.)
-
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -p foss-2025b_mpi -t compilation
-    ```
-
-=======
     site_configuration['environments'].append(
         {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
     cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
@@ -202,19 +163,12 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
 
     `fftw` additionally needs an entry for the new environment in the `flags` table of `checks/fft/fftw_benchmark.py`, otherwise it links without `-lfftw3`. For a non-MPI environment use `cc: gcc`, `cxx: g++`, `ftn: gfortran` and no `features`.
 
->>>>>>> 2df0a1d (Update readme)
 - **I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
 
     ```bash
     ./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
     ```
-<<<<<<< HEAD
-    
-    Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `Namd_CPUTest`, `NumpyTest`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to the `version = parameter([...], type=str)` line in the test. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
-    
-=======
 
     Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `Namd_CPUTest`, `NumpyTest`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to the `version = parameter([...], type=str)` line in the test. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
 
->>>>>>> 2df0a1d (Update readme)
     Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
