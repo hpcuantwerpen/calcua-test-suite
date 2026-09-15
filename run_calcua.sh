@@ -63,7 +63,8 @@ export RFM_CONFIG_FILES="$(dirname "$0")/calcua_config.py"
 export RFM_CHECK_SEARCH_RECURSIVE=true
 
 echo "reframe ${args[*]}"
-reframe "${args[@]}"
+echo "Acquiring the lock $CALCUA_LOGDIR/reframe-$VSC_INSTITUTE_CLUSTER.lock"
+flock $CALCUA_LOGDIR/reframe-$VSC_INSTITUTE_CLUSTER.lock -c "reframe ${args[*]}"
 
 if $pushtomongo; then
   echo 'Pushing to mongodb'
