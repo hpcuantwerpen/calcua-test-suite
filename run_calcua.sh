@@ -45,6 +45,7 @@ for a in "$@"; do
 done
 
 echo "Calcua run file"
+echo "Command: reframe ${args[*]}"
 
 if ! $havemode; then
   echo "Execution mode not specified, reverting to --mode=calcua"
@@ -62,12 +63,16 @@ module load ReFrame/4.9.1
 export RFM_CONFIG_FILES="$(dirname "$0")/calcua_config.py"
 export RFM_CHECK_SEARCH_RECURSIVE=true
 
-echo "reframe ${args[*]}"
 echo "Acquiring the lock $CALCUA_LOGDIR/reframe-$VSC_INSTITUTE_CLUSTER.lock"
-flock $CALCUA_LOGDIR/reframe-$VSC_INSTITUTE_CLUSTER.lock -c "reframe ${args[*]}"
+exec 9>"$CALCUA_LOGDIR/reframe-$VSC_INSTITUTE_CLUSTER.lock"
+flock 9
+
+reframe "${args[@]}"
 
 if $pushtomongo; then
   echo 'Pushing to mongodb'
   sleep 10
   "$(dirname "$0")/push_to_mongo.py" >> "$CALCUA_LOGDIR/pushtomongo.logs" 2>&1
 fi
+
+flock -u 9   # optional
