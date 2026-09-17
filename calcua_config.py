@@ -1,4 +1,3 @@
-from py import builtin
 import os
 
 # Where reframe writes output/stage/performance/reports: the shared directory unless
