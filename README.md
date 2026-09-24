@@ -2,25 +2,12 @@
 
 Wrapper scripts around [ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) to run the CalcUA test suite on vaughan, leibniz and breniac and push the results to the database.
 
-Requirements: run the scripts from a checkout of this repo on a login node (the production one is `/apps/antwerpen/reframe/testsuite/calcua-test-suite`; the tests are taken from the `checks/` and `vsc-test-suite/tests/` next to `calcua_config.py`, so a private clone tests its own checks — clone with `--recurse-submodules`); ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`); membership of `ap_calcua_staff` and — unless you set `CALCUA_LOGDIR`, see below — of group `vsc20001`, which owns the shared log directory (`run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand).
+Requirements:
 
-## Development Status
-
-In Progress:
-- [x] Completion of [issue 3488](https://github.com/reframe-hpc/reframe/issues/3488)
-    - Update flexible tests and `daily` mode
-- [x] Completion of [issue 3485](https://github.com/reframe-hpc/reframe/issues/3485)
-    - Update flask API
-- [ ] Completion of [issue 3483](https://github.com/reframe-hpc/reframe/issues/3483)
-    - Upgrade Amber tests and improve command line documentation
-- [ ] Completion of [issue 3491](https://github.com/reframe-hpc/reframe/issues/3491)
-    - Update DB and grafana
-- [ ] Completion of [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)
-    - `-p/--prgenv` has no effect when `--mode` is used; until fixed use `-S valid_prog_environs=...`
-
-TODOs:
-- [ ] Compile HPCC with toolchains >= 2023a
-
+- run the scripts from a checkout of this repo on a login node. The production one is `/apps/antwerpen/reframe/testsuite/calcua-test-suite`; clone with `--recurse-submodules`, so a private clone tests its own `checks/` and `vsc-test-suite/tests/`
+- ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`)
+- membership of `ap_calcua_staff`
+- membership of `vsc20001`, which owns the shared log directory — unless you set `CALCUA_LOGDIR` (see below). `run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand
 
 ## Scripts
 
@@ -78,15 +65,15 @@ Test tags:
 |---|---|
 | `basic` | hello world single-/multi-threaded compilation + execution |
 | `alloc` | time to allocate 8192 MB |
-| `cue` | `env` environment variables, `tools` tool versions, `fs` filesystem mounts, `job` clean job environment |
-| `fs` | filesystem mounts + existence/permissions of `/dev/kfd` on `vaughan:amd` |
+| `cue` | VSC suite: `env` environment variables, `tools` tool versions, `fs` shared filesystem mounts, `job` clean job environment |
+| `fs` | the `cue` mount checks, plus CalcUA's `/dev/kfd` existence/permissions check on `vaughan:amd` |
 | `fftw` | FFTW MPI compilation + execution |
 | `halo` | halo cell exchange MPI compilation + execution |
 | `hpcc` | HPC Challenge (`leibniz:broadwell` only) |
 | `micro` | echo hello job + MPI hello (VSC test suite) |
 | `burn` | GPU burn on nvidia partitions |
 | `abinit`, `amber`, `gaussian`, `gromacs`, `quantumespresso`, `vasp` | application benchmarks, parameterised on module `version` |
-| `namd` | MD benchmark (VSC suite), parameterised on module `version` |
+| `namd` | MD benchmark (VSC suite); loads the default `NAMD` module, swap with `-M` |
 | `julia`, `matlab` (VSC suite), `python` (`numpy`) | linear algebra benchmarks |
 
 `pytorch` exists but is disabled (commented out).
@@ -99,7 +86,7 @@ Test tags:
 | `calcua` (default) | everything **except** tags `daily` and `massive` |
 | `all` | everything |
 
-All modes set the output/stage/perflog/report paths. When selecting tests by hand, use `--mode=all`: with the default mode `-t cue` selects nothing.
+All modes set the output/stage/perflog/report paths. The default mode hides the `daily` and `massive` tests, so use `--mode=all` when selecting those by hand.
 
 ## Systems
 
@@ -107,9 +94,11 @@ All modes set the output/stage/perflog/report paths. When selecting tests by han
 
 | Cluster | Partitions (features) |
 |---|---|
-| `vaughan` | `login` (login), `default` (cpu, default), `zen2`, `zen3`, `zen3_512` (cpu), `nvidia` (gpu, nvidia), `amd` (gpu, amd) |
-| `leibniz` | `login` (login), `default` (cpu, default), `broadwell`, `broadwell_256` (cpu), `nvidia` (gpu) |
-| `breniac` | `login` (login), `default` (cpu, default), `skylake` (cpu) |
+| `vaughan` | `login` (cpu, login), `default` (cpu, default), `zen2`, `zen3`, `zen3_512` (cpu), `nvidia` (gpu, nvidia), `amd` (gpu, amd) |
+| `leibniz` | `login` (cpu, login), `default` (cpu, default), `broadwell`, `broadwell_256` (cpu), `nvidia` (gpu, nvidia, deprecated) |
+| `breniac` | `login` (cpu, login), `default` (cpu, default), `skylake` (cpu) |
+
+Note the login partitions carry `cpu`: widening a test with `-S valid_systems='+cpu'` or `'*'` will also run it on the login node. Name the partition with `--system` to avoid that.
 
 Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,2025a}[_mpi]`, `CUDA`.
 
@@ -125,7 +114,8 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
 | `--mode=MODE`, `--system=SYS[:PART]` | mode / system from the config file |
 | `-J OPT` | pass an option to Slurm, e.g. `-J reservation=myres` |
 | `-S [TEST.]VAR=VAL` | override a test *variable* |
-| `-P [TEST.]PARAM=VAL0,VAL1` | override a test *parameter* (ReFrame >= 4.9) |
+| `-P [TEST.]PARAM=VAL0,VAL1` | override a test *parameter* (ReFrame >= 4.9); CalcUA tests only |
+| `-M 'MOD:MOD/VERSION'` | swap a module for another when the job script loads it; works in every test |
 | `-C FILE` | use another config file |
 
 `-S` sets a variable *before* the test is instantiated, so a test that assigns it in `__init__` or a hook wins. All tests declare `valid_systems`/`valid_prog_environs` at class level except `gromacs`, `calcua_specific` and the VSC suite's `cue/tools`, which compute them from their parameters and cannot be overridden.
@@ -171,12 +161,12 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
     ./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
     ```
 
-    Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `QECheck`, `vasp_test` and, from the VSC suite, `Namd_CPUTest`, `JuliaLinalgTest`, `MatlabLinalgTest`, `NumpyTest` (these load their site's default module unless overridden):
+    Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to that test's `version = parameter([...], type=str)` line. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
+
+    The VSC-suite tests (`Namd_CPUTest`, `JuliaLinalgTest`, `MatlabLinalgTest`, `NumpyTest`, `GPU_Burn_nvidia`, ...) have no `version` parameter: they load the site default and you swap a build in with a module mapping, which works for any module in any test:
 
     ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -n Namd_CPUTest -P Namd_CPUTest.version=NAMD/3.0-foss-2024a-mpi
+    ./run_calcua.sh --run --mode=all --system=vaughan:default -n Namd_CPUTest -M 'NAMD:NAMD/3.0-foss-2024a-mpi'
     ```
-
-    Check the selection with `-l` first; to keep a version permanently, add it to the `version = parameter([...], type=str)` line in the test. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
 
     Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
