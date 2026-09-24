@@ -302,7 +302,7 @@ site_configuration = {
 {
             'name': 'foss-2025a', 'cc': 'gcc', 'cxx': 'g++', 'ftn': 'gfortran', 'modules': ['foss/2025a']},
         {
-            'name': 'foss-2025a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025a'], 'features': ['mpi']},
+            'name': 'foss-2025a_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025a'], 'features': ['mpi', 'fftw']},
         {
             'name': 'intel-2023a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2023a']},
         {
@@ -314,7 +314,7 @@ site_configuration = {
  {
             'name': 'intel-2025a', 'cc': 'icx', 'cxx': 'icpx', 'ftn': 'ifx', 'modules': ['intel/2025a']},
         {
-            'name': 'intel-2025a_mpi', 'cc': 'mpiicx', 'cxx': 'mpiicpx', 'ftn': 'mpiifx', 'modules': ['intel/2025a'], 'features': ['mpi']},
+            'name': 'intel-2025a_mpi', 'cc': 'mpiicx', 'cxx': 'mpiicpx', 'ftn': 'mpiifx', 'modules': ['intel/2025a'], 'features': ['mpi', 'fftw']},
         {
             'name': 'CUDA',
             'modules': ['CUDA/12.8.0'],

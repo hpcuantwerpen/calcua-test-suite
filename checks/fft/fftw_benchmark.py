@@ -19,8 +19,10 @@ class FFTWTest(rfm.RegressionTest):
     flags = variable(dict, value={
         'foss-2023a_mpi':   ['-O2', '-lfftw3'],
         'foss-2024a_mpi':   ['-O2', '-lfftw3'],
+        'foss-2025a_mpi':   ['-O2', '-lfftw3'],
         'intel-2023a_mpi': ['-O2', '-qmkl'],
-        'intel-2024a_mpi': ['-O2', '-qmkl']
+        'intel-2024a_mpi': ['-O2', '-qmkl'],
+        'intel-2025a_mpi': ['-O2', '-qmkl']
     })
     tags = {'calcua', 'performance', 'compilation', 'fftw'}
 
