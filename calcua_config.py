@@ -6,6 +6,10 @@ logdir = os.environ.get('CALCUA_LOGDIR', '/apps/antwerpen/reframe/logs').rstrip(
 cluster = os.environ.get('VSC_INSTITUTE_CLUSTER', 'unknown')
 # The checks of this checkout, wherever it lives.
 checkpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'checks')
+# The shared VSC test suite, vendored as a git submodule; its tests run
+# alongside the calcua ones in every mode.
+vsc_checkpath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             'vsc-test-suite', 'tests')
 
 standard_mode_options = [
     '--exec-policy=async',
@@ -14,7 +18,8 @@ standard_mode_options = [
     f'--stage={logdir}/stage/',
     f'--report-file={logdir}/reports/last-{cluster}.json',
     '--nocolor',
-    f'--checkpath={checkpath}/'
+    f'--checkpath={checkpath}/',
+    f'--checkpath={vsc_checkpath}/',
 ]
 
 

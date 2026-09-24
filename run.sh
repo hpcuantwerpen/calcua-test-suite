@@ -26,7 +26,9 @@ for a in "$@"; do
   case "$a" in -h|--help) usage; exit 0 ;; esac
 done
 
-git -C "$testdir" pull
+git -C "$testdir" pull --recurse-submodules
+# populate/refresh vsc-test-suite at the commit this repo pins
+git -C "$testdir" submodule update --init --recursive
 
 declare -a sites=("login1.leibniz" "login1.vaughan" "login.breniac")
 
