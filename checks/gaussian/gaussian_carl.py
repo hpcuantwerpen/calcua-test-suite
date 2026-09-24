@@ -12,7 +12,6 @@ class GaussianCheck(rfm.RunOnlyRegressionTest):
     executable = 'g16'
     tags = {'calcua', 'performance', 'gaussian'}
     output_file = 'g16-test.log'
-#    allref = {'vaughan:zen2':{'elapsed_time':(320, None, 100, 's')}, 'vaughan:zen3':{'elapsed_time':(260, None, 100, 's')}}
 
     @run_before('run')
     def setup_run(self):
@@ -25,7 +24,6 @@ class GaussianCheck(rfm.RunOnlyRegressionTest):
     @sanity_function
     def validate(self):
         return sn.assert_found(r'Normal termination of Gaussian.*', self.output_file)
-    #todo
 
     @performance_function('seconds')
     def elapsed_time(self):
