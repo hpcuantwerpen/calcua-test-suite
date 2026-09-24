@@ -143,7 +143,7 @@ site_configuration = {
                         },
                     ],
                     'extras': {'num_cpus': 64, 'num_gpus': 4},
-                    'features': ['gpu'],
+                    'features': ['gpu', 'nvidia'],
 
                 },
                 {
@@ -315,6 +315,7 @@ site_configuration = {
             'modules': ['CUDA/12.8.0'],
             'cc': 'nvcc',
             'cxx': 'nvcc',
+            'features': ['cuda'],
         },
     ],
     'general': [
