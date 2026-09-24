@@ -74,7 +74,7 @@ Test tags:
 | `burn` | GPU burn on nvidia partitions |
 | `abinit`, `amber`, `gaussian`, `gromacs`, `quantumespresso`, `vasp` | application benchmarks, parameterised on module `version` |
 | `namd` | MD benchmark (VSC suite); loads the default `NAMD` module, swap with `-M` |
-| `julia`, `matlab` (VSC suite), `python` (`numpy`) | linear algebra benchmarks |
+| `julia`, `matlab`, `python` (`numpy`) | linear algebra benchmarks (VSC suite) |
 
 `pytorch` exists but is disabled (commented out).
 
