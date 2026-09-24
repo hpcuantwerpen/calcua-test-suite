@@ -10,6 +10,9 @@ points RFM_CONFIG_FILES at the calcua_config.py next to it and passes all
 other arguments to reframe.
 
   --push-mongo   push the report to the database after the run (push_to_mongo.py)
+  --module-mappings FILE
+                 swap modules as the job script loads them; defaults to the
+                 module_mappings.txt next to this script (no-op as shipped)
   --mode=MODE    daily | calcua (default: excludes tags daily and massive) | all
   -h, --help     show this help (for reframe's own help: reframe -h)
 
@@ -30,12 +33,15 @@ EOF
 args=()
 pushtomongo=false
 havemode=false
+havemapping=false
 
 for a in "$@"; do
   case "$a" in
     -h|--help)       usage; exit 0 ;;
     --push-mongo)    pushtomongo=true ;;
     --mode|--mode=*) havemode=true; args+=("$a") ;;
+    --module-mappings|--module-mappings=*)
+                     havemapping=true; args+=("$a") ;;
     -p|-p*|--prgenv|--prgenv=*)
                      echo "warning: ReFrame ignores $a when --mode is set (bug, <= 4.10.3);" \
                           "use -S valid_prog_environs=ENV1,ENV2 instead" >&2
@@ -50,6 +56,14 @@ echo "Command: reframe ${args[*]}"
 if ! $havemode; then
   echo "Execution mode not specified, reverting to --mode=calcua"
   args=(--mode=calcua "${args[@]}")
+fi
+
+# module_mappings.txt next to this script is applied by default; every mapping
+# in it ships commented out, so it is a no-op until someone edits it. A
+# --module-mappings of your own on the command line replaces it.
+map_file="$(dirname "$0")/module_mappings.txt"
+if ! $havemapping && [[ -f "$map_file" ]]; then
+  args=(--module-mappings "$map_file" "${args[@]}")
 fi
 
 # where reframe writes; calcua_config.py and push_to_mongo.py read the same variable

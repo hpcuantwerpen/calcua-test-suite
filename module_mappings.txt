@@ -1,0 +1,1 @@
+NAMD: NAMD/3.0-foss-2024a-mpi

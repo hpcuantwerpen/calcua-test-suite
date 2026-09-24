@@ -18,6 +18,7 @@ Both shell scripts take `--help`.
   - every other option is passed to `reframe` unchanged
   - `--push-mongo` runs `push_to_mongo.py` after the run
   - without `--mode`, `--mode=calcua` is used (see [Modes](#modes))
+  - without `--module-mappings`, the `module_mappings.txt` next to it is used
 
 - **`./run.sh [reframe options]`** — runs the suite on all clusters.
   - `git pull --recurse-submodules`s this repo and checks out the pinned `vsc-test-suite`
@@ -37,6 +38,7 @@ All output lands in `$CALCUA_LOGDIR`, default `/apps/antwerpen/reframe/logs/`. S
 Layout of this repo:
 
 - `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above
+- `module_mappings.txt` — module mappings applied to every run by `run_calcua.sh`; ships with every mapping commented out, so it does nothing until you edit it
 - `calcua_config.py` — ReFrame config: systems, partitions, environments, modes (the modes set the paths above from `CALCUA_LOGDIR` and point `--checkpath` at both `checks/` and `vsc-test-suite/tests/`)
 - `checks/<test>/` — the CalcUA tests. ReFrame imports every `.py` under `checks/`, so keep helper scripts out of it
 - `vsc-test-suite/` — the shared [VSC test suite](https://github.com/Lewih/vsc-test-suite) as a git submodule; its `tests/` run alongside the CalcUA ones in every mode. It is pinned to a commit: `git submodule update --remote vsc-test-suite` and commit the new pointer to take newer VSC tests
@@ -116,6 +118,7 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
 | `-S [TEST.]VAR=VAL` | override a test *variable* |
 | `-P [TEST.]PARAM=VAL0,VAL1` | override a test *parameter* (ReFrame >= 4.9); CalcUA tests only |
 | `-M 'MOD:MOD/VERSION'` | swap a module for another when the job script loads it; works in every test |
+| `--module-mappings FILE` | the same, several at once, from a file; `module_mappings.txt` is used by default |
 | `-C FILE` | use another config file |
 
 `-S` sets a variable *before* the test is instantiated, so a test that assigns it in `__init__` or a hook wins. All tests declare `valid_systems`/`valid_prog_environs` at class level except `gromacs`, `calcua_specific` and the VSC suite's `cue/tools`, which compute them from their parameters and cannot be overridden.
@@ -168,5 +171,9 @@ Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,
     ```bash
     ./run_calcua.sh --run --mode=all --system=vaughan:default -n Namd_CPUTest -M 'NAMD:NAMD/3.0-foss-2024a-mpi'
     ```
+
+    For several modules at once, or to keep a swap in place across runs, edit `module_mappings.txt`.
+
+    Pass `--module-mappings FILE` to use a different file instead.
 
     Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
