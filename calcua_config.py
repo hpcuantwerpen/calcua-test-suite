@@ -135,7 +135,7 @@ site_configuration = {
                     'environs': ['CUDA', 'standard'],
                     'descr': 'Nvidia ampere node',
                     'max_jobs': 18,
-                    'launcher': 'srun',
+                    'launcher': 'local',
                     'resources': [
                         {
                             'name': 'gpu',
@@ -152,8 +152,8 @@ site_configuration = {
                     'access': [calcua_account_string_tier2, '-p arcturus_gpu'],
                     'environs': ['standard'],
                     'descr': 'AMD GPU node',
-                    'max_jobs': 18,                #     'launcher': 'srun',
-                    'launcher': 'srun',
+                    'max_jobs': 18,                #     'launcher': 'local',
+                    'launcher': 'local',
                     'resources': [
                         {
                         'name': 'gpu',
@@ -226,7 +226,7 @@ site_configuration = {
                     'environs': ['CUDA', 'standard'],
                     'descr': 'Nvidia pascal nodes',
                     'max_jobs': 18,
-                    'launcher': 'srun',
+                    'launcher': 'local',
                     'resources': [
                         {
                             'name': 'gpu',
