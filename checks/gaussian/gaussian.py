@@ -28,7 +28,7 @@ class GaussianBaseTest(rfm.RunOnlyRegressionTest):
 class GaussianCPUTest(GaussianBaseTest):
     version = parameter(['Gaussian/g16_c01-avx2'], type=str)
     valid_systems = ['+cpu -default -login -test']
-    tags = {'apps', 'gaussian', 'performance', 'vsc'}
+    tags = {'gaussian', 'performance', 'calcua'}
 
     @run_after('setup')
     def set_num_cpus(self):
