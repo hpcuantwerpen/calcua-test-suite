@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 1;
+
+// Mesh resolution. The ReFrame test rewrites these with foamDictionary to scale the case up;
+// the tutorial defaults are 100 x 40 = 4000 cells. Keep nx:ny at 5:2 to preserve the cell
+// aspect ratio (the domain is 0.02 m x 0.02 m).
+nx 100;
+ny 40;
+
+vertices
+(
+    (0.0  -0.01 -0.01)
+    (0.02 -0.01 -0.01)
+    (0.02  0.01 -0.01)
+    (0.0   0.01 -0.01)
+    (0.0  -0.01  0.01)
+    (0.02 -0.01  0.01)
+    (0.02  0.01  0.01)
+    (0.0   0.01  0.01)
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) ($nx $ny 1) simpleGrading (1 1 1)
+);
+
+boundary
+(
+    fuel
+    {
+        type patch;
+        faces
+        (
+            (0 4 7 3)
+        );
+    }
+    air
+    {
+        type patch;
+        faces
+        (
+            (1 2 6 5)
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (0 1 5 4)
+            (7 6 2 3)
+        );
+    }
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (4 5 6 7)
+            (0 3 2 1)
+        );
+    }
+);
+
+
+// ************************************************************************* //

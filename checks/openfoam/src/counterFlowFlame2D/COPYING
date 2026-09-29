@@ -1,0 +1,47 @@
+Source
+------
+Copied from the OpenFOAM-13 tutorial suite:
+
+    https://github.com/OpenFOAM/OpenFOAM-13
+    tutorials/multicomponentFluid/counterFlowFlame2D
+
+OpenFOAM is free software released under the GNU General Public License v3 by
+the OpenFOAM Foundation (https://openfoam.org). The tutorial case files here are
+distributed under those terms; see https://www.gnu.org/licenses/gpl-3.0.html.
+
+OPENFOAM is a registered trademark of OpenCFD Limited. This case is used here
+for benchmarking only and this repository is not approved or endorsed by
+OpenCFD Limited or the OpenFOAM Foundation.
+
+Note that the openfoam.org (Foundation) and openfoam.com (ESI/OpenCFD) releases
+are separate lineages. This case is a Foundation case: it runs through foamRun
+with the multicomponentFluid solver module and will not run on an ESI build.
+
+
+Local deviations from the upstream tutorial
+-------------------------------------------
+1. constant/thermophysicalTransport  -- ADDED, not shipped by the tutorial.
+   Selects the FickianFourier laminar thermophysical transport model with
+   mixtureDiffusionCoefficients and a per-specie Dm table. This model is the
+   reason the test exists: it has caused trouble for a user before, so
+   checks/openfoam/counterflowflame.py asserts the solver actually selects it
+   rather than silently falling back to another transport model.
+
+2. system/decomposeParDict           -- ADDED, not shipped by this tutorial.
+   scotch decomposition. numberOfSubdomains is rewritten at run time by the
+   ReFrame test with foamDictionary to match the job's rank count.
+
+3. system/blockMeshDict              -- MODIFIED.
+   The hardcoded block resolution (100 40 1) was replaced with top-level `nx`
+   and `ny` entries referenced as ($nx $ny 1), so the test can scale the mesh
+   with foamDictionary. The defaults still reproduce the tutorial's 4000 cells.
+
+4. system/controlDict                -- MODIFIED.
+   writeInterval raised from 0.05 to 0.5 (= endTime) so the case writes once at
+   the end instead of ten times. Write frequency does not affect the solution,
+   but on a scaled-up mesh ten writes would put the shared filesystem, rather
+   than the solver, into the measurement.
+
+Everything under 0/ and the remaining constant/ files are byte-for-byte the
+upstream tutorial files. When updating, re-copy from upstream and re-apply the
+four deviations above rather than hand-editing.

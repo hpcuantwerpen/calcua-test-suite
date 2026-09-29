@@ -45,6 +45,17 @@ Layout of this repo:
 
 The parent directory `/apps/antwerpen/reframe/testsuite/` also holds `cpuburn/`, `highload/`, `HPCC-vaughan/` (manual stress tests, not part of the suite) and `test-suite/` (EESSI). The VSC test suite is no longer a sibling checkout: it is the submodule above.
 
+### Vendored third-party test cases
+
+Some tests ship input data copied from upstream projects rather than written here. Each case directory keeps its own licence file; the test's module docstring names the source.
+
+| Case | Source | Licence |
+|---|---|---|
+| `checks/openfoam/src/cavity3D/` | [OpenFOAM HPC Technical Committee](https://develop.openfoam.com/committees/hpc/-/tree/develop/incompressible/icoFoam/cavity3D) benchmark suite (exaFOAM), Wikki GmbH. The ReFrame pipeline — the `blockMesh` → `redistributePar` → `renumberMesh` → `icoFoam` chain and the sanity/perf patterns — follows the [EESSI test-suite](https://github.com/EESSI/test-suite) implementation of the same benchmark (`eessi/testsuite/tests/apps/openfoam/`) | CC BY-SA 4.0, see `src/cavity3D/COPYING` |
+| `checks/openfoam/src/counterFlowFlame2D/` | [OpenFOAM-13 tutorial](https://github.com/OpenFOAM/OpenFOAM-13/tree/master/tutorials/multicomponentFluid/counterFlowFlame2D) `tutorials/multicomponentFluid/counterFlowFlame2D`, plus a local `constant/thermophysicalTransport` selecting `FickianFourier` (not shipped by the tutorial) and a `system/decomposeParDict` | GPL-3.0, see `src/counterFlowFlame2D/COPYING` |
+
+When updating a vendored case, re-copy from upstream rather than hand-editing, and keep the local deviations listed in the case's `COPYING`.
+
 ## Tags
 
 Tests are selected by tag: `-t TAG` (regex, e.g. `-t "compilation|cue"`), `-T TAG` excludes. `./run_calcua.sh --mode=all --list-tags` lists them (only for tests valid on the current cluster).
@@ -56,7 +67,7 @@ Group tags:
 | `daily` | quick sanity checks: `basic`, `halo` and the `kfd` check. **Excluded by the default `calcua` mode.** The `cue`/`micro` tests moved to the VSC suite, which does not tag them `daily` yet |
 | `compilation` | tests that compile code: `basic`, `alloc`, `fftw`, `halo`, `hpcc` |
 | `performance` | every benchmark (all tests except the `cue`/`micro`/`fs` checks) |
-| `massive` | multi-node HPCC runs; excluded by the default `calcua` mode |
+| `massive` | the largest multi-node runs (HPCC, `openfoam` 64M); excluded by the default `calcua` mode |
 | `gpu`, `cpu`, `mpi` | hardware / MPI flavour of a test |
 | `1nodes`, `2nodes`, `4nodes` | node count (`namd`, `julia`) |
 | `calcua`, `vsc`, `apps` | origin: CalcUA-specific, VSC test suite, application tests |
@@ -74,6 +85,9 @@ Test tags:
 | `hpcc` | HPC Challenge (`leibniz:broadwell` only) |
 | `micro` | echo hello job + MPI hello (VSC test suite) |
 | `burn` | GPU burn on nvidia partitions |
+| `openfoam` | both OpenFOAM tests (the two rows below). The two target **different OpenFOAM branches** and are not interchangeable |
+| `openfoam` (cavity) | 3D lid-driven cavity, `icoFoam`, parameterised on `mesh`: `1M` / `8M` / `64M` cells. Needs an **ESI** module (`OpenFOAM/v2506-foss-2025a` and friends) |
+| `flame` | counter-flow flame 2D on 2 nodes, `foamRun` with the `multicomponentFluid` module. Exercises the `FickianFourier` laminar transport model, which the sanity check asserts was actually selected. Needs an **openfoam.org** module (`OpenFOAM/13-foss-2025a`; 11 and 12 share the case layout, 10 does not). Mesh is 500x200; scale it with `-S mesh_scale=N` (N x 100 by N x 40) |
 | `abinit`, `amber`, `gaussian`, `gromacs`, `quantumespresso`, `vasp` | application benchmarks, parameterised on module `version` |
 | `namd` | MD benchmark (VSC suite); loads the default `NAMD` module, swap with `-M` |
 | `julia`, `matlab`, `python` (`numpy`) | linear algebra benchmarks (VSC suite) |

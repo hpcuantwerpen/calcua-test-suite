@@ -1,0 +1,22 @@
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalTransport;
+}
+
+laminar
+{
+    model                        FickianFourier;
+    mixtureDiffusionCoefficients yes;
+
+    Dm   // [m^2/s], into N2-dominated mixture
+    {
+        CH4  2.2e-5;
+        O2   2.1e-5;
+        CO2  1.6e-5;
+        H2O  2.5e-5;
+        N2   2.0e-5;
+    }
+}
