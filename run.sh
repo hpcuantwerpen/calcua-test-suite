@@ -16,8 +16,7 @@ Nothing is printed; results end up in /apps/antwerpen/reframe/logs/ (or in
   -h, --help   show this help
 
 Examples:
-  ./run.sh                              # default mode (calcua)
-  ./run.sh --mode=daily
+  ./run.sh                              # default mode
   ./run.sh --mode=all -t "compilation|cue"
 EOF
 }

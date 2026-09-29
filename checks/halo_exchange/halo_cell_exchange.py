@@ -15,7 +15,7 @@ class HaloCellExchange(rfm.RegressionTest):
     valid_prog_environs = ['+mpi']
     launcher = parameter(['mpirun', 'srun'], type=str)
     maintainers = ['Michele Pugno']
-    tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance', 'daily'}
+    tags = {'halo', 'calcua', 'mpi', 'compilation', 'performance'}
 
     def __init__(self):
         self.sourcepath = 'halo_cell_exchange.c'

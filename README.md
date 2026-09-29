@@ -17,7 +17,7 @@ Both shell scripts take `--help`.
   - loads `ReFrame/4.9.1` and points it at `calcua_config.py`
   - every other option is passed to `reframe` unchanged
   - `--push-mongo` runs `push_to_mongo.py` after the run
-  - without `--mode`, `--mode=calcua` is used (see [Modes](#modes))
+  - without `--mode`, `--mode=default` is used (see [Modes](#modes))
   - without `--module-mappings`, the `module_mappings.txt` next to it is used
 
 - **`./run.sh [reframe options]`** — runs the suite on all clusters.
@@ -64,10 +64,9 @@ Group tags:
 
 | Tag | Selects |
 |---|---|
-| `daily` | quick sanity checks: `basic`, `halo` and the `kfd` check. **Excluded by the default `calcua` mode.** The `cue`/`micro` tests moved to the VSC suite, which does not tag them `daily` yet |
 | `compilation` | tests that compile code: `basic`, `alloc`, `fftw`, `halo`, `hpcc` |
 | `performance` | every benchmark (all tests except the `cue`/`micro`/`fs` checks) |
-| `massive` | the largest multi-node runs (HPCC, `openfoam` 64M); excluded by the default `calcua` mode |
+| `massive` | the largest multi-node runs (HPCC, `openfoam` 64M); excluded by the `default` mode |
 | `gpu`, `cpu`, `mpi` | hardware / MPI flavour of a test |
 | `1nodes`, `2nodes`, `4nodes` | node count (`namd`, `julia`) |
 | `calcua`, `vsc`, `apps` | origin: CalcUA-specific, VSC test suite, application tests |
@@ -98,11 +97,10 @@ Test tags:
 
 | `--mode` | Selects |
 |---|---|
-| `daily` | only tag `daily`, with `--flex-alloc-nodes=1` |
-| `calcua` (default) | everything **except** tags `daily` and `massive` |
+| `default` | everything **except** tag `massive` |
 | `all` | everything |
 
-All modes set the output/stage/perflog/report paths. The default mode hides the `daily` and `massive` tests, so use `--mode=all` when selecting those by hand.
+Both modes set the output/stage/perflog/report paths. The default mode hides the `massive` tests, so use `--mode=all` when selecting those by hand.
 
 ## Systems
 

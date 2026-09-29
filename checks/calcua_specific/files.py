@@ -16,7 +16,7 @@ class CalcuaExistTest(rfm.RunOnlyRegressionTest):
     time_limit = '1m'
     num_tasks = -1
     num_tasks_per_node = 1
-    tags = {"calcua", "fs", "daily"}
+    tags = {"calcua", "fs"}
 
     @run_after('init')
     def set_param(self):
@@ -49,7 +49,7 @@ class CalcuaModeTest(rfm.RunOnlyRegressionTest):
     time_limit = '1m'
     num_tasks = -1
     num_tasks_per_node = 1
-    tags = {"calcua", "fs", "daily"}
+    tags = {"calcua", "fs"}
 
     @run_after('init')
     def set_param(self):

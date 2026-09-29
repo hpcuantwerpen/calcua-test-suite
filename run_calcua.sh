@@ -13,7 +13,7 @@ other arguments to reframe.
   --module-mappings FILE
                  swap modules as the job script loads them; defaults to the
                  module_mappings.txt next to this script (no-op as shipped)
-  --mode=MODE    daily | calcua (default: excludes tags daily and massive) | all
+  --mode=MODE    default (excludes tag massive) | all
   -h, --help     show this help (for reframe's own help: reframe -h)
 
 Environment:
@@ -54,8 +54,8 @@ echo "Calcua run file"
 echo "Command: reframe ${args[*]}"
 
 if ! $havemode; then
-  echo "Execution mode not specified, reverting to --mode=calcua"
-  args=(--mode=calcua "${args[@]}")
+  echo "Execution mode not specified, reverting to --mode=default"
+  args=(--mode=default "${args[@]}")
 fi
 
 # module_mappings.txt next to this script is applied by default; every mapping

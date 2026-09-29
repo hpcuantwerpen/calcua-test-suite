@@ -41,13 +41,8 @@ site_configuration = {
     'modes':
     [
         {
-            'name': 'daily',
-            # change exec-policy to serial
-            'options': standard_mode_options[1:len(standard_mode_options)] + ['--flex-alloc-nodes="1"', '--exec-policy=async', '-t daily']
-        },
-        {
-            'name': 'calcua',
-            'options': standard_mode_options + ['-T massive', '-T daily'],
+            'name': 'default',
+            'options': standard_mode_options + ['-T massive'],
         },
         {
             'name': 'all',
