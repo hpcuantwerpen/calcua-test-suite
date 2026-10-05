@@ -103,7 +103,7 @@ Environments: `standard` (no modules), `foss-`/`intel-{2023a,2024a,2025a}`, thei
 | a bare name (`NAMD`, `Julia`, `MATLAB`, `SciPy-bundle`, ...): VSC suite | `-M 'NAME:NAME/VERSION'` |
 | an environment's toolchain: compiled tests | a new environment, see below |
 | modules in its own script: HPCC | edit `checks/HPCC/src/` |
-| software in `/apps/antwerpen/testing/` | not supported yet |
+| software in `/apps/antwerpen/testing/` | `--module-path=+/apps/antwerpen/testing/<subdir>/modules/<cluster-arch-os>/all/` |
 
 | Caveat | |
 |---|---|
@@ -215,7 +215,7 @@ Always name the partition: `'*'` also matches login nodes.
 ```bash
 ./run_calcua.sh --run --mode=all -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
 ./run_calcua.sh --run --mode=all -n QECheck -P QECheck.version=QuantumESPRESSO/7.4-foss-2024a,QuantumESPRESSO/<new>
-./run_calcua.sh --run --mode=all -n AbinitCheck -P AbinitCheck.version=ABINIT/<version>
+./run_calcua.sh --run --mode=all -n AbinitCheck -P AbinitCheck.version=ABINIT/<version> --module-path=+/apps/antwerpen/testing/3737-ABINIT/modules/<cluster-arch-os>/all/
 ./run_calcua.sh --run --mode=all -n amber_gpu -P amber_gpu.version=Amber/<version>-CUDA-<cuda>
 ./run_calcua.sh --run --mode=all -n GaussianCheck -P GaussianCheck.version=Gaussian/<version>
 ./run_calcua.sh --run --mode=all -n gromacs_test -P gromacs_test.version=GROMACS/2025.3-foss-2025a          # CPU, 8 nodes
