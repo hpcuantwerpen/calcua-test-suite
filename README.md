@@ -15,6 +15,15 @@
 - membership of `ap_calcua_staff` (Slurm account)
 - membership of `vsc20001` (owns the shared log directory), unless you set `CALCUA_LOGDIR`
 
+## Repository layout
+
+| Path | Content |
+|---|---|
+| `calcua_config.py` | systems, partitions, environments, modes |
+| `module_mappings.txt` | mappings for every run |
+| `checks/` | CalcUA tests. Every `.py` here is imported: no helper scripts |
+| `vsc-test-suite/` | [VSC test suite](https://github.com/Lewih/vsc-test-suite), pinned submodule. Update: `git submodule update --remote vsc-test-suite`, commit the pointer |
+
 ## Scripts
 
 **`./run_calcua.sh [--push-mongo] [reframe options]`** — runs on the current cluster. Passes all options to `reframe`, adding:
@@ -118,7 +127,7 @@ Environments: `standard` (no modules), `foss-`/`intel-{2023a,2024a,2025a}`, thei
 
 ## Examples
 
-Run on the login node of the cluster you target; `--system` cannot reach another cluster.
+Run `./run_calcua.sh` on the login node of the cluster you target.
 
 ### Look before you run
 
@@ -127,14 +136,16 @@ Run on the login node of the cluster you target; `--system` cannot reach another
 ./run_calcua.sh --mode=all -l                                       # every test and its variants
 ./run_calcua.sh --mode=all -l -t gpu --system=vaughan:nvidia        # what runs on one partition
 ./run_calcua.sh --mode=all -l -t performance -T "gpu|massive"       # select, then exclude
-./run_calcua.sh --mode=all --dry-run -n HaloCellExchange            # generate job scripts in stage/, submit nothing
+./run_calcua.sh --mode=all --dry-run -n HaloCellExchange            # generate job scripts in stage/, list the tests, submit nothing
 ```
 
 ### Routine runs
 
 ```bash
-./run_calcua.sh --run                                 # this cluster, mode default (no massive)
+./run_calcua.sh --run                                 # this cluster, mode default (no massive tag)
 ./run_calcua.sh --run --push-mongo                    # same, then push the report
+./run_calcua.sh --run
+./push_to_mongo.py                                    # the DB push script can be executed indipendently (still, it uses CALCUA_LOGDIR)
 ./run.sh                                              # every cluster, detached, pushes
 ./run.sh --mode=all -t "compilation|cue"              # every cluster, a subset
 ```
@@ -267,16 +278,6 @@ cpu_env_list.append('foss-2025b_mpi')
 ```
 
 `fftw` also needs an entry in the `flags` table of `checks/fft/fftw_benchmark.py`. A non-MPI environment uses `cc: gcc`, `cxx: g++`, `ftn: gfortran` and no `features`.
-
-## Repository layout
-
-| Path | Content |
-|---|---|
-| `calcua_config.py` | systems, partitions, environments, modes |
-| `module_mappings.txt` | mappings for every run |
-| `checks/` | CalcUA tests. Every `.py` here is imported: no helper scripts |
-| `vsc-test-suite/` | [VSC test suite](https://github.com/Lewih/vsc-test-suite), pinned submodule. Update: `git submodule update --remote vsc-test-suite`, commit the pointer |
-| `../cpuburn/`, `../highload/`, `../HPCC-vaughan/`, `../test-suite/` | manual stress tests and EESSI, not part of the suite |
 
 ### Vendored third-party test cases
 
