@@ -4,7 +4,7 @@ import reframe.utility.sanity as sn
 
 @rfm.simple_test
 class HelloThreadedExtendedTest(rfm.RegressionTest):
-    valid_systems = ["+default", "+login", "+test"]
+    valid_systems = ["+default", "+login"]
     valid_prog_environs = ['-mpi']
     sourcepath = 'hworldthread.cpp'
     build_system = 'SingleSource'

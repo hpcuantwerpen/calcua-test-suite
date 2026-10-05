@@ -7,7 +7,7 @@ from reframe.core.backends import getlauncher
 @rfm.simple_test
 class amber_test(hpctestlib.sciapps.amber.nve.amber_nve_check):
     # build upon existing hpctestlib
-    valid_systems = ['+default', '+test -login']
+    valid_systems = ['+default']
     tags = {'amber', 'calcua', 'performance', 'cpu'}
     version = parameter(['Amber/24.3-foss-2023a-AmberTools-24.10'], type=str)
     valid_prog_environs = ['standard'] 

@@ -5,7 +5,7 @@ import reframe.utility.sanity as sn
 @rfm.simple_test
 class HelloMultiLangTest(rfm.RegressionTest):
     lang = parameter(['c', 'cpp'], type=str)
-    valid_systems = ["+default", "+login", "+test"]
+    valid_systems = ["+default", "+login"]
     valid_prog_environs = ['-mpi']
     tags = {'calcua', 'basic', 'compilation'}
 

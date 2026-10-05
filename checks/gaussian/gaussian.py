@@ -27,7 +27,7 @@ class GaussianBaseTest(rfm.RunOnlyRegressionTest):
 @rfm.simple_test
 class GaussianCPUTest(GaussianBaseTest):
     version = parameter(['Gaussian/g16_c01-avx2'], type=str)
-    valid_systems = ['+cpu -default -login -test']
+    valid_systems = ['+cpu -default -login']
     tags = {'gaussian', 'performance', 'calcua'}
 
     @run_after('setup')

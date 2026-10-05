@@ -1,191 +1,288 @@
 # CalcUA ReFrame test suite
 
-Wrapper scripts around [ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) to run the CalcUA test suite on vaughan, leibniz and breniac and push the results to the database.
+[ReFrame](https://reframe-hpc.readthedocs.io/en/stable/manpage.html) tests for vaughan, leibniz and breniac, with scripts to run them and push the results to the database.
 
-Requirements:
+```bash
+./run_calcua.sh --mode=all --list-tags            # tags available here
+./run_calcua.sh --mode=all -l -t compilation      # list what would run
+./run_calcua.sh --run --mode=all -t compilation   # run it
+```
 
-- run the scripts from a checkout of this repo on a login node. The production one is `/apps/antwerpen/reframe/testsuite/calcua-test-suite`; clone with `--recurse-submodules`, so a private clone tests its own `checks/` and `vsc-test-suite/tests/`
+## Requirements
+
+- a checkout on a login node, cloned with `--recurse-submodules`. Production: `/apps/antwerpen/reframe/testsuite/calcua-test-suite`
 - ReFrame >= 4.9 (`run_calcua.sh` loads `ReFrame/4.9.1`)
-- membership of `ap_calcua_staff`
-- membership of `vsc20001`, which owns the shared log directory — unless you set `CALCUA_LOGDIR` (see below). `run_calcua.sh` sets `umask 002` so files stay group-writable; do the same if you call `reframe` by hand
+- membership of `ap_calcua_staff` (Slurm account)
+- membership of `vsc20001` (owns the shared log directory), unless you set `CALCUA_LOGDIR`
 
 ## Scripts
 
-Both shell scripts take `--help`.
+**`./run_calcua.sh [--push-mongo] [reframe options]`** — runs on the current cluster. Passes all options to `reframe`, adding:
 
-- **`./run_calcua.sh [--push-mongo] [reframe options]`** — runs the suite on the cluster you are logged in to.
-  - loads `ReFrame/4.9.1` and points it at `calcua_config.py`
-  - every other option is passed to `reframe` unchanged
-  - `--push-mongo` runs `push_to_mongo.py` after the run
-  - without `--mode`, `--mode=default` is used (see [Modes](#modes))
-  - without `--module-mappings`, the `module_mappings.txt` next to it is used
+- `--mode=default` if no `--mode` is given
+- `--module-mappings module_mappings.txt` if none is given
+- a per-cluster lock: a second run with the same `CALCUA_LOGDIR` waits for the first
+- `umask 002`, so the shared logs stay group-writable
 
-- **`./run.sh [reframe options]`** — runs the suite on all clusters.
-  - `git pull --recurse-submodules`s this repo and checks out the pinned `vsc-test-suite`
-  - ssh'es as the current user to `login1.leibniz`, `login1.vaughan` and `login.breniac`
-  - starts `./run_calcua.sh --run --push-mongo <options>` there, detached; nothing is printed
+`--push-mongo` runs `push_to_mongo.py` afterwards.
 
-- **`./push_to_mongo.py [report] [endpoint]`** — pushes a report to the database.
-  - reads `$CALCUA_LOGDIR/reports/<report>.json`, default `last-$VSC_INSTITUTE_CLUSTER`
-  - POSTs every test case to `https://service.antwerpen.vsc:27016/add_<endpoint>/`, default endpoint `reframe`
+**`./run.sh [reframe options]`** — pulls the production checkout, then starts `run_calcua.sh --run --push-mongo <options>` detached on `login1.leibniz`, `login1.vaughan` and `login.breniac`.
 
-All output lands in `$CALCUA_LOGDIR`, default `/apps/antwerpen/reframe/logs/`. Set it to keep a run out of the shared directory — e.g. `CALCUA_LOGDIR=$VSC_DATA/reframe/logs ./run_calcua.sh ...`; `run.sh` forwards it to the remote runs:
+**`./push_to_mongo.py [report] [endpoint]`** — POSTs every test case in `$CALCUA_LOGDIR/reports/<report>.json` (default `last-<cluster>`) to `https://service.antwerpen.vsc:27016/add_<endpoint>/` (default `reframe`). HTTP errors are not checked.
 
-- `output/`, `stage/`, `performance/` — job output, stage directories, performance logs
-- `reports/last-<cluster>.json` — report of the last run, this is what gets pushed
-- `pushtomongo.logs` — output of `push_to_mongo.py`
+**Output** goes to `$CALCUA_LOGDIR`, default `/apps/antwerpen/reframe/logs/`; `run.sh` forwards it. Use e.g. `CALCUA_LOGDIR=$VSC_DATA/reframe/logs` to stay out of the shared directory.
 
-Layout of this repo:
-
-- `run_calcua.sh`, `run.sh`, `push_to_mongo.py` — the scripts above
-- `module_mappings.txt` — module mappings applied to every run by `run_calcua.sh`; ships with every mapping commented out, so it does nothing until you edit it
-- `calcua_config.py` — ReFrame config: systems, partitions, environments, modes (the modes set the paths above from `CALCUA_LOGDIR` and point `--checkpath` at both `checks/` and `vsc-test-suite/tests/`)
-- `checks/<test>/` — the CalcUA tests. ReFrame imports every `.py` under `checks/`, so keep helper scripts out of it
-- `vsc-test-suite/` — the shared [VSC test suite](https://github.com/Lewih/vsc-test-suite) as a git submodule; its `tests/` run alongside the CalcUA ones in every mode. It is pinned to a commit: `git submodule update --remote vsc-test-suite` and commit the new pointer to take newer VSC tests
-
-The parent directory `/apps/antwerpen/reframe/testsuite/` also holds `cpuburn/`, `highload/`, `HPCC-vaughan/` (manual stress tests, not part of the suite) and `test-suite/` (EESSI). The VSC test suite is no longer a sibling checkout: it is the submodule above.
-
-### Vendored third-party test cases
-
-Some tests ship input data copied from upstream projects rather than written here. Each case directory keeps its own licence file; the test's module docstring names the source.
-
-| Case | Source | Licence |
-|---|---|---|
-| `checks/openfoam/src/cavity3D/` | [OpenFOAM HPC Technical Committee](https://develop.openfoam.com/committees/hpc/-/tree/develop/incompressible/icoFoam/cavity3D) benchmark suite (exaFOAM), Wikki GmbH. The ReFrame pipeline — the `blockMesh` → `redistributePar` → `renumberMesh` → `icoFoam` chain and the sanity/perf patterns — follows the [EESSI test-suite](https://github.com/EESSI/test-suite) implementation of the same benchmark (`eessi/testsuite/tests/apps/openfoam/`) | CC BY-SA 4.0, see `src/cavity3D/COPYING` |
-| `checks/openfoam/src/counterFlowFlame2D/` | [OpenFOAM-13 tutorial](https://github.com/OpenFOAM/OpenFOAM-13/tree/master/tutorials/multicomponentFluid/counterFlowFlame2D) `tutorials/multicomponentFluid/counterFlowFlame2D`, plus a local `constant/thermophysicalTransport` selecting `FickianFourier` (not shipped by the tutorial) and a `system/decomposeParDict` | GPL-3.0, see `src/counterFlowFlame2D/COPYING` |
-
-When updating a vendored case, re-copy from upstream rather than hand-editing, and keep the local deviations listed in the case's `COPYING`.
-
-## Tags
-
-Tests are selected by tag: `-t TAG` (regex, e.g. `-t "compilation|cue"`), `-T TAG` excludes. `./run_calcua.sh --mode=all --list-tags` lists them (only for tests valid on the current cluster).
-
-Group tags:
-
-| Tag | Selects |
+| Path | Content |
 |---|---|
-| `compilation` | tests that compile code: `basic`, `alloc`, `fftw`, `halo`, `hpcc` |
-| `performance` | every benchmark (all tests except the `cue`/`micro`/`fs` checks) |
-| `massive` | the largest multi-node runs (HPCC, `openfoam` 64M); excluded by the `default` mode |
-| `gpu`, `cpu`, `mpi` | hardware / MPI flavour of a test |
-| `1nodes`, `2nodes`, `4nodes` | node count (`namd`, `julia`) |
-| `calcua`, `vsc`, `apps` | origin: CalcUA-specific, VSC test suite, application tests |
+| `output/`, `stage/`, `performance/` | job output, stage dirs, perf logs |
+| `reports/last-<cluster>.json` | last report; this is what gets pushed |
+| `pushtomongo.logs` | `push_to_mongo.py` output |
 
-Test tags:
+## Selecting tests
 
-| Tag | Test |
+`-t TAG` selects, `-T TAG` excludes, `-n NAME` selects by class name; all are regexes.
+
+| `--mode` | Runs |
 |---|---|
-| `basic` | hello world single-/multi-threaded compilation + execution |
-| `alloc` | time to allocate 8192 MB |
-| `cue` | VSC suite: `env` environment variables, `tools` tool versions, `fs` shared filesystem mounts, `job` clean job environment |
-| `fs` | the `cue` mount checks, plus CalcUA's `/dev/kfd` existence/permissions check on `vaughan:amd` |
-| `fftw` | FFTW MPI compilation + execution |
-| `halo` | halo cell exchange MPI compilation + execution |
-| `hpcc` | HPC Challenge (`leibniz:broadwell` only) |
-| `micro` | echo hello job + MPI hello (VSC test suite) |
-| `burn` | GPU burn on nvidia partitions |
-| `openfoam` | both OpenFOAM tests (the two rows below). The two target **different OpenFOAM branches** and are not interchangeable |
-| `openfoam` (cavity) | 3D lid-driven cavity, `icoFoam`, parameterised on `mesh`: `1M` / `8M` / `64M` cells. Needs an **ESI** module (`OpenFOAM/v2506-foss-2025a` and friends) |
-| `flame` | counter-flow flame 2D on 2 nodes, `foamRun` with the `multicomponentFluid` module. Exercises the `FickianFourier` laminar transport model, which the sanity check asserts was actually selected. Needs an **openfoam.org** module (`OpenFOAM/13-foss-2025a`; 11 and 12 share the case layout, 10 does not). Mesh is 500x200; scale it with `-S mesh_scale=N` (N x 100 by N x 40) |
-| `abinit`, `amber`, `gaussian`, `gromacs`, `quantumespresso`, `vasp` | application benchmarks, parameterised on module `version` |
-| `namd` | MD benchmark (VSC suite); loads the default `NAMD` module, swap with `-M` |
-| `julia`, `matlab`, `python` (`numpy`) | linear algebra benchmarks (VSC suite) |
-
-`pytorch` exists but is disabled (commented out).
-
-## Modes
-
-| `--mode` | Selects |
-|---|---|
-| `default` | everything **except** tag `massive` |
+| `default` | everything except `massive` |
 | `all` | everything |
 
-Both modes set the output/stage/perflog/report paths. The default mode hides the `massive` tests, so use `--mode=all` when selecting those by hand.
+| Group tag | Tests |
+|---|---|
+| `calcua` / `vsc` | `checks/` / `vsc-test-suite/tests/` |
+| `apps` | openfoam, flame, namd, julia, matlab, numpy. **Not** abinit, amber, gaussian, gromacs, QE, vasp |
+| `compilation` | basic (CalcUA), alloc, fftw, halo, hpcc |
+| `performance` | all except basic, cue, micro and CalcUA fs |
+| `massive` | hpcc 24 nodes, openfoam 64M |
+| `gpu` | amber_gpu, gromacs GPU, burn, GPU micro jobs |
+| `cpu` | amber_test only |
+| `mpi` | halo, MPI hello only |
+| `1nodes` `2nodes` `4nodes` | namd (1/2/4), julia (1) |
 
-## Systems
+| Test tag | Test |
+|---|---|
+| `basic` | CalcUA hello world (C, C++, threaded); VSC echo job |
+| `alloc` | allocate 8192 MB |
+| `cue` | VSC environment checks: `env`, `tools`, `fs` (mounts), `job` |
+| `fs` | cue mounts + `/dev/kfd` on `vaughan:amd` |
+| `micro` | VSC echo job, MPI hello, GPU job |
+| `fftw`, `halo` | MPI compile + run |
+| `hpcc` | HPC Challenge, 1/8/24 nodes, `leibniz:broadwell` only |
+| `burn` | GPU burn, non-deprecated nvidia |
+| `openfoam` | cavity3D (`icoFoam`, mesh 1M/8M/64M), needs an **ESI** module (`v2506`); also matches `flame` |
+| `flame` | counterFlowFlame2D, 2 nodes, needs an **openfoam.org** module (`13`; 11/12 work, 10 doesn't). Scale with `-S mesh_scale=N` |
+| `abinit` `amber` `gaussian` `gromacs` `quantumespresso` `vasp` | app benchmarks, parameterised on `version` |
+| `namd`, `julia`, `matlab`, `numpy` | VSC app benchmarks |
 
-`--system=<cluster>` or `--system=<cluster>:<partition>`. Tests pick partitions by *feature*: a test valid on `+default` does not run on `zen2`.
+## Where tests run
+
+`--system=CLUSTER[:PARTITION]`. Tests select partitions by feature.
 
 | Cluster | Partitions (features) |
 |---|---|
-| `vaughan` | `login` (cpu, login), `default` (cpu, default), `zen2`, `zen3`, `zen3_512` (cpu), `nvidia` (gpu, nvidia), `amd` (gpu, amd) |
-| `leibniz` | `login` (cpu, login), `default` (cpu, default), `broadwell`, `broadwell_256` (cpu), `nvidia` (gpu, nvidia, deprecated) |
-| `breniac` | `login` (cpu, login), `default` (cpu, default), `skylake` (cpu) |
+| `vaughan` | `login` (cpu login), `default` (cpu default), `zen2` `zen3` `zen3_512` (cpu), `nvidia` (gpu nvidia), `amd` (gpu amd) |
+| `leibniz` | `login` (cpu login), `default` (cpu default), `broadwell` `broadwell_256` (cpu), `nvidia` (gpu nvidia deprecated) |
+| `breniac` | `login` (cpu login), `default` (cpu default), `skylake` (cpu) |
 
-Note the login partitions carry `cpu`: widening a test with `-S valid_systems='+cpu'` or `'*'` will also run it on the login node. Name the partition with `--system` to avoid that.
+Environments: `standard` (no modules), `foss-`/`intel-{2023a,2024a,2025a}`, their `_mpi` variants (features `mpi fftw`), `CUDA`. Login and AMD partitions have only `standard`.
 
-Environments: `standard`, `foss-{2023a,2024a,2025a}[_mpi]`, `intel-{2023a,2024a,2025a}[_mpi]`, `CUDA`.
+## Changing the software under test
 
-## Most used ReFrame options
+| Test loads | Tool |
+|---|---|
+| a `version` parameter: abinit, amber, gaussian, gromacs, QE, vasp, openfoam, flame | `-P Class.version=MOD[,MOD]` |
+| a bare name (`NAMD`, `Julia`, `MATLAB`, `SciPy-bundle`, ...): VSC suite | `-M 'NAME:NAME/VERSION'` |
+| an environment's toolchain: compiled tests | a new environment, see below |
+| modules in its own script: HPCC | edit `checks/HPCC/src/` |
+| software in `/apps/antwerpen/testing/` | not supported yet |
+
+| Caveat | |
+|---|---|
+| `-M` on a `version` test | matches only the exact name: `-M 'VASP:...'` does nothing; a full-name mapping mislabels the report |
+| `gromacs_test` | CUDA builds on GPU (1 node), others on CPU (8 nodes) |
+| `module_mappings.txt` | applies to **every** run, production included (currently `NAMD`). `-M` adds to it; `--module-mappings /dev/null` disables it |
+
+## ReFrame options
 
 | Option | Meaning |
 |---|---|
-| `-l` / `-r` | list / run the selected tests |
-| `-t TAG`, `-T TAG` | select / exclude by tag (regex) |
-| `-n NAME` | select by test name (regex) |
-| `-p ENV` | **ignored when `--mode` is set** ([issue 3734](https://github.com/reframe-hpc/reframe/issues/3734), up to 4.10.3), and `run_calcua.sh` always sets a mode. Use the next row instead |
-| `-S [TEST.]valid_prog_environs=E1,E2` | run only in the listed environments (same for `valid_systems`) |
-| `--mode=MODE`, `--system=SYS[:PART]` | mode / system from the config file |
-| `-J OPT` | pass an option to Slurm, e.g. `-J reservation=myres` |
-| `-S [TEST.]VAR=VAL` | override a test *variable* |
-| `-P [TEST.]PARAM=VAL0,VAL1` | override a test *parameter* (ReFrame >= 4.9); CalcUA tests only |
-| `-M 'MOD:MOD/VERSION'` | swap a module for another when the job script loads it; works in every test |
-| `--module-mappings FILE` | the same, several at once, from a file; `module_mappings.txt` is used by default |
-| `-C FILE` | use another config file |
+| `-l` / `-r` | list / run |
+| `-t` `-T` `-n` | select by tag, exclude by tag, select by name |
+| `--system=SYS[:PART]` | target cluster/partition |
+| `-J OPT` | Slurm option, e.g. `-J reservation=myres` |
+| `-S [TEST.]VAR=VAL` | set a variable (`valid_systems`, `valid_prog_environs`, `mesh_scale`). No effect on `valid_systems` of `gromacs_test`, `calcua_specific`, VSC `cue/tools` |
+| `-P [TEST.]PARAM=V1,V2` | set a parameter (`version`). Needs `type=` on the parameter; never use it for `valid_*` |
+| `-M`, `--module-mappings` | swap modules |
+| `-C FILE` | other config file |
+| `-p ENV` | **broken with `--mode`** ([#3734](https://github.com/reframe-hpc/reframe/issues/3734)); use `-S valid_prog_environs=ENV` |
 
-`-S` sets a variable *before* the test is instantiated, so a test that assigns it in `__init__` or a hook wins. All tests declare `valid_systems`/`valid_prog_environs` at class level except `gromacs`, `calcua_specific` and the VSC suite's `cue/tools`, which compute them from their parameters and cannot be overridden.
+## Examples
 
-## Use cases
+Run on the login node of the cluster you target; `--system` cannot reach another cluster.
 
-- **I changed the image / Slurm / ... and want to test it on a reservation** — target the nodes with `--system` and `-J`, pick the tests by tag:
+### Look before you run
 
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue"
-    ```
+```bash
+./run_calcua.sh --mode=all --list-tags                              # tags of tests valid on this cluster
+./run_calcua.sh --mode=all -l                                       # every test and its variants
+./run_calcua.sh --mode=all -l -t gpu --system=vaughan:nvidia        # what runs on one partition
+./run_calcua.sh --mode=all -l -t performance -T "gpu|massive"       # select, then exclude
+./run_calcua.sh --mode=all --dry-run -n HaloCellExchange            # generate job scripts in stage/, submit nothing
+```
 
-    Use `default` rather than `zen2`/`zen3`: most `cue`/`basic` tests are only valid on `default`/`login` partitions.
+### Routine runs
 
-- **I specified a partition, but now there are no tests anymore** — the tests are not valid there (see [Systems](#systems)); overwrite their `valid_systems`:
+```bash
+./run_calcua.sh --run                                 # this cluster, mode default (no massive)
+./run_calcua.sh --run --push-mongo                    # same, then push the report
+./run.sh                                              # every cluster, detached, pushes
+./run.sh --mode=all -t "compilation|cue"              # every cluster, a subset
+```
 
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -t halo -S valid_systems='*'
-    ```
+`run.sh` pulls the production checkout: commit and push your changes first.
 
-    The same can happen with the environments: `-S valid_prog_environs=...`. Use `-S`, not `-P`: these are variables, and `-P` would turn them into a parameter.
+### Keep a run out of the shared logs
 
-- **I made a new toolchain and want to test it** — add it as an environment in a derived config, then restrict the tests to it with `-S valid_prog_environs` (`-p` is broken with `--mode`, [issue 3734](https://github.com/reframe-hpc/reframe/issues/3734)):
+```bash
+mkdir -p $VSC_DATA/reframe/logs
+CALCUA_LOGDIR=$VSC_DATA/reframe/logs ./run_calcua.sh --run --mode=all -t basic
+CALCUA_LOGDIR=$VSC_DATA/reframe/logs ./push_to_mongo.py      # push that report, if wanted
+```
 
-    ```python
-    # myconfig.py, next to calcua_config.py
-    from calcua_config import *
+The directory must exist: the lock file is created in it.
 
-    site_configuration['environments'].append(
-        {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi']})
-    cpu_env_list.append('foss-2025b_mpi')   # the cpu partitions reference this list
-    ```
+### Select precisely
 
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t "halo|basic|alloc" -S valid_prog_environs=foss-2025b_mpi
-    ```
+```bash
+./run_calcua.sh --run --mode=all -n HaloCellExchange                                   # one test class
+./run_calcua.sh --run --mode=all -n HaloCellExchange -P HaloCellExchange.launcher=srun # one variant
+./run_calcua.sh --run --mode=all -n HaloCellExchange -S valid_prog_environs=foss-2025a_mpi
+./run_calcua.sh --run --mode=all -n OpenFOAMCavity3DCheck -P OpenFOAMCavity3DCheck.mesh=1M
+./run_calcua.sh --run --mode=all -n vasp_test -P vasp_test.num_nodes=4
+```
 
-    `fftw` additionally needs an entry for the new environment in the `flags` table of `checks/fft/fftw_benchmark.py`, otherwise it links without `-lfftw3`. For a non-MPI environment use `cc: gcc`, `cxx: g++`, `ftn: gfortran` and no `features`.
+### Test a reservation or changed nodes
 
-- **I built a new version of an application and want to test it** — override the `version` parameter with `-P <TestClass>.version=<module>` (comma-separated for several):
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue"
+./run_calcua.sh --run --mode=all --system=vaughan:default -J reservation=myres -t "compilation|cue|micro|apps"
+./run_calcua.sh --run --mode=all --system=vaughan:default -J nodelist=<node> -t "basic|cue"
+```
 
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
-    ```
+Use `default`, not `zen2`/`zen3`: most `cue`/`basic` tests only run on `default`/`login`.
 
-    Test classes: `AbinitCheck`, `amber_test`, `amber_gpu`, `GaussianCPUTest`, `GaussianCheck`, `gromacs_test`, `QECheck`, `vasp_test`. Check the selection with `-l` first; to keep a version permanently, add it to that test's `version = parameter([...], type=str)` line. The `type=str` is what lets `-P` convert the command-line value — keep it when adding new parameterised tests.
+### No tests on my partition
 
-    The VSC-suite tests (`Namd_CPUTest`, `JuliaLinalgTest`, `MatlabLinalgTest`, `NumpyTest`, `GPU_Burn_nvidia`, ...) have no `version` parameter: they load the site default and you swap a build in with a module mapping, which works for any module in any test:
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:zen3_512 -t halo -S valid_systems='*'
+./run_calcua.sh --run --mode=all --system=vaughan:zen3 -n vasp_test -S vasp_test.valid_systems='*'
+./run_calcua.sh --run --mode=all --system=vaughan:zen2 -t basic -S valid_prog_environs='*'
+```
 
-    ```bash
-    ./run_calcua.sh --run --mode=all --system=vaughan:default -n Namd_CPUTest -M 'NAMD:NAMD/3.0-foss-2024a-mpi'
-    ```
+Always name the partition: `'*'` also matches login nodes.
 
-    For several modules at once, or to keep a swap in place across runs, edit `module_mappings.txt`.
+### GPU nodes
 
-    Pass `--module-mappings FILE` to use a different file instead.
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:nvidia -t gpu      # amber, gromacs, burn, GPU job
+./run_calcua.sh --run --mode=all --system=vaughan:nvidia -t burn
+./run_calcua.sh --run --mode=all --system=vaughan:amd -t "fs|micro"  # /dev/kfd check, AMD GPU job
+```
 
-    Unfortunately, using software in `/apps/antwerpen/testing/...` is currently not supported.
+### Massive tests
+
+```bash
+./run_calcua.sh --run --mode=all -t massive                                         # hpcc 24 nodes (leibniz), openfoam 64M
+./run_calcua.sh --run --mode=all -n HPCCTest -P HPCCTest.num_nodes=24               # on leibniz
+./run_calcua.sh --run --mode=all -n OpenFOAMCavity3DCheck -P OpenFOAMCavity3DCheck.mesh=64M
+```
+
+`--mode=default` hides these even when selected by name.
+
+### New application build
+
+```bash
+./run_calcua.sh --run --mode=all -n vasp_test -P vasp_test.version=VASP/6.6.1-intel-2025a-dftd4-4.0.2
+./run_calcua.sh --run --mode=all -n QECheck -P QECheck.version=QuantumESPRESSO/7.4-foss-2024a,QuantumESPRESSO/<new>
+./run_calcua.sh --run --mode=all -n AbinitCheck -P AbinitCheck.version=ABINIT/<version>
+./run_calcua.sh --run --mode=all -n amber_gpu -P amber_gpu.version=Amber/<version>-CUDA-<cuda>
+./run_calcua.sh --run --mode=all -n GaussianCheck -P GaussianCheck.version=Gaussian/<version>
+./run_calcua.sh --run --mode=all -n gromacs_test -P gromacs_test.version=GROMACS/2025.3-foss-2025a          # CPU, 8 nodes
+./run_calcua.sh --run --mode=all -n gromacs_test -P gromacs_test.version=GROMACS/<version>-CUDA-<cuda>       # GPU, 1 node
+./run_calcua.sh --run --mode=all -n OpenFOAMCavity3DCheck -P OpenFOAMCavity3DCheck.version=OpenFOAM/<v25xx>-foss-<tc>   # ESI
+./run_calcua.sh --run --mode=all -n OpenFOAMCounterFlowFlame2DCheck -P OpenFOAMCounterFlowFlame2DCheck.version=OpenFOAM/<11|12|13>-foss-<tc>  # openfoam.org
+```
+
+The version replaces the default list; list both to compare old and new in one run.
+
+### New build of a VSC-suite application
+
+```bash
+./run_calcua.sh --run --mode=all -n Namd_CPUTest -M 'NAMD:NAMD/<version>'
+./run_calcua.sh --run --mode=all -n JuliaLinalgTest -M 'Julia:Julia/<version>'
+./run_calcua.sh --run --mode=all -n "Namd|Julia" -M 'NAMD:NAMD/<version>' -M 'Julia:Julia/<version>'
+./run_calcua.sh --run --mode=all -n Namd_CPUTest --module-mappings /dev/null       # site default, ignoring module_mappings.txt
+```
+
+For a permanent swap, edit `module_mappings.txt`: it applies to production runs.
+
+### Scale a test
+
+```bash
+./run_calcua.sh --run --mode=all -n OpenFOAMCounterFlowFlame2DCheck -S mesh_scale=10   # 1000 x 400 cells
+./run_calcua.sh --run --mode=all -n Namd_CPUTest -t 4nodes                          # pick a node count by tag
+```
+
+### Rerun failures, debug
+
+```bash
+./run_calcua.sh --run --restore-session=$CALCUA_LOGDIR/reports/last-$VSC_INSTITUTE_CLUSTER.json --failed
+./run_calcua.sh --run --mode=all -n HaloCellExchange --keep-stage-files            # keep stage/ after success
+ls $CALCUA_LOGDIR/output/vaughan/default/                                           # job output per system/partition
+```
+
+The rerun overwrites `last-<cluster>.json`; don't `--push-mongo` a partial rerun.
+
+### New toolchain
+
+Add an environment in a derived config:
+
+```python
+# myconfig.py, next to calcua_config.py
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from calcua_config import *
+
+site_configuration['environments'].append(
+    {'name': 'foss-2025b_mpi', 'cc': 'mpicc', 'cxx': 'mpicxx', 'ftn': 'mpifort', 'modules': ['foss/2025b'], 'features': ['mpi', 'fftw']})
+cpu_env_list.append('foss-2025b_mpi')
+```
+
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t "halo|basic|alloc|fftw" -S valid_prog_environs=foss-2025b_mpi
+```
+
+```bash
+./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t "basic|alloc" -S valid_prog_environs=foss-2025b     # non-MPI env, if added
+```
+
+`fftw` also needs an entry in the `flags` table of `checks/fft/fftw_benchmark.py`. A non-MPI environment uses `cc: gcc`, `cxx: g++`, `ftn: gfortran` and no `features`.
+
+## Repository layout
+
+| Path | Content |
+|---|---|
+| `calcua_config.py` | systems, partitions, environments, modes |
+| `module_mappings.txt` | mappings for every run |
+| `checks/` | CalcUA tests. Every `.py` here is imported: no helper scripts |
+| `vsc-test-suite/` | [VSC test suite](https://github.com/Lewih/vsc-test-suite), pinned submodule. Update: `git submodule update --remote vsc-test-suite`, commit the pointer |
+| `../cpuburn/`, `../highload/`, `../HPCC-vaughan/`, `../test-suite/` | manual stress tests and EESSI, not part of the suite |
+
+### Vendored third-party test cases
+
+| Case | Source | Licence + local deviations |
+|---|---|---|
+| `checks/openfoam/src/cavity3D/` | [OpenFOAM HPC TC](https://develop.openfoam.com/committees/hpc/-/tree/develop/incompressible/icoFoam/cavity3D); pipeline after [EESSI](https://github.com/EESSI/test-suite) | CC BY-SA 4.0, `COPYING` |
+| `checks/openfoam/src/counterFlowFlame2D/` | [OpenFOAM-13 tutorial](https://github.com/OpenFOAM/OpenFOAM-13/tree/master/tutorials/multicomponentFluid/counterFlowFlame2D) | GPL-3.0, `COPYING` |
+
+Update by re-copying from upstream, not by hand.

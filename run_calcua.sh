@@ -12,7 +12,7 @@ other arguments to reframe.
   --push-mongo   push the report to the database after the run (push_to_mongo.py)
   --module-mappings FILE
                  swap modules as the job script loads them; defaults to the
-                 module_mappings.txt next to this script (no-op as shipped)
+                 module_mappings.txt next to this script
   --mode=MODE    default (excludes tag massive) | all
   -h, --help     show this help (for reframe's own help: reframe -h)
 
@@ -58,9 +58,9 @@ if ! $havemode; then
   args=(--mode=default "${args[@]}")
 fi
 
-# module_mappings.txt next to this script is applied by default; every mapping
-# in it ships commented out, so it is a no-op until someone edits it. A
-# --module-mappings of your own on the command line replaces it.
+# module_mappings.txt next to this script is applied by default (production runs
+# use its mappings). A --module-mappings of your own on the command line
+# replaces it; -M adds to it.
 map_file="$(dirname "$0")/module_mappings.txt"
 if ! $havemapping && [[ -f "$map_file" ]]; then
   args=(--module-mappings "$map_file" "${args[@]}")

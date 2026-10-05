@@ -8,7 +8,9 @@ from reframe.core.backends import getlauncher
 class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
     # build upon existing hpctestlib
     num_nodes = parameter([1, 8], type=int)
-    version = parameter(['GROMACS/2025.3-foss-2025a', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'], type=str)
+    # CUDA builds run in the gpu variant, all other builds in the cpu one, so any
+    # build can be tested with -P gromacs_test.version=GROMACS/...
+    version = parameter(['GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'], type=str)
 
     @run_after('init')
     def skip_invalid(self):
@@ -17,18 +19,17 @@ class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
 
     @run_after('init')
     def set_test_env(self):
-        if self.nb_impl == 'cpu' and  self.version == "GROMACS/2023.3-foss-2023a-PLUMED-2.9.0":
-            self.valid_systems = ['+cpu -default -login']
-            self.tags = {'gromacs', 'calcua', 'performance'}
-            self.modules = [self.version]
-            self.valid_prog_environs = ['standard']
-        elif self.nb_impl == 'gpu' and 'CUDA' in self.version:
+        is_cuda = 'CUDA' in self.version
+        self.skip_if(is_cuda != (self.nb_impl == 'gpu'),
+                     f"skipping {self.version} on {self.nb_impl}")
+        self.modules = [self.version]
+        self.valid_prog_environs = ['standard']
+        if self.nb_impl == 'gpu':
             self.valid_systems = ['*:nvidia']
             self.tags = {'gromacs', 'calcua', 'performance', 'gpu'}
-            self.modules = [self.version]
-            self.valid_prog_environs = ['standard']
         else:
-             self.skip(f"skipping {self.version} on {self.nb_impl}")
+            self.valid_systems = ['+cpu -default -login']
+            self.tags = {'gromacs', 'calcua', 'performance'}
 
     @run_before('run')
     def set_options(self):

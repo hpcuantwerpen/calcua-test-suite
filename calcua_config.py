@@ -116,18 +116,6 @@ site_configuration = {
                     'max_jobs': 18,
                     'launcher': 'local',
                 },
-                # {
-                #     'name': 'rocky9_test',
-                #     'scheduler': 'slurm',
-                #     'modules': [],
-                #     'access': [calcua_account_string_tier2, '--reservation=rocky9'],
-                #     'environs': cpu_env_list,
-                #     'features': ['cpu', 'test'],
-                #     'extras': {'num_cpus': 64},
-                #     'descr': 'jobs with rocky9 reservation',
-                #     'max_jobs': 18,
-                #     'launcher': 'local',
-                # },
                 {
                     'name': 'nvidia',
                     'scheduler': 'slurm',
