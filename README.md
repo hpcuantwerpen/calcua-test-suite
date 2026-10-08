@@ -275,7 +275,10 @@ cpu_env_list.append('foss-2025b_mpi')
 
 ```bash
 ./run_calcua.sh --run --mode=all --system=vaughan:default -C myconfig.py -t "basic|alloc" -S valid_prog_environs=foss-2025b     # non-MPI env, if added
+./run_calcua.sh --run --mode=all --system=vaughan:zen2 -C myconfig.py -n HPCCTest -P HPCCTest.num_nodes=1 -S valid_prog_environs=foss-2025b_mpi   # builds HPCC first
 ```
+
+`hpcc` picks its build settings by family (`foss-*`, `intel-*`); another family needs an entry in the `toolchains` table of `checks/HPCC/hpcc.py`.
 
 `fftw` also needs an entry in the `flags` table of `checks/fft/fftw_benchmark.py`. A non-MPI environment uses `cc: gcc`, `cxx: g++`, `ftn: gfortran` and no `features`.
 

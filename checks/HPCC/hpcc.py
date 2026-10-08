@@ -52,18 +52,18 @@ class HPCCBuild(rfm.CompileOnlyRegressionTest):
     valid_prog_environs = ['*']
     sourcesdir = None
     build_system = 'CustomBuild'
-    # Per toolchain. foss: FFTW3 (FFTW.MPI ships with foss). intel: HPCC's built-in FFTE, since
-    # MKL has no ready-made FFTW3 MPI library. AVX2 for broadwell/zen; GCC 14 and icx turn old C
-    # idioms in HPCC into errors, hence -fpermissive / -Wno-error=...
+    # Per toolchain family, matched on the environment name ('foss-2025a_mpi' -> 'foss'); the
+    # compiler comes from the environment in calcua_config.py. foss: FFTW3 (FFTW.MPI ships with
+    # foss). intel: HPCC's built-in FFTE, since MKL has no ready-made FFTW3 MPI library. AVX2 for
+    # broadwell/zen; GCC 14 and icx turn old C idioms in HPCC into errors, hence -fpermissive /
+    # -Wno-error=...
     toolchains = variable(dict, value={
-        'foss-2025a_mpi': {
-            'cc': 'mpicc',
+        'foss': {
             'ccflags': '-O3 -march=x86-64-v3 -fcommon -fpermissive',
             'lainc': '-DUSING_FFTW3',
             'lalib': '-lfftw3_mpi -lfftw3 -lflexiblas',
         },
-        'intel-2025a_mpi': {
-            'cc': 'mpiicx',
+        'intel': {
             'ccflags': '-O3 -march=core-avx2 -fcommon -Wno-error=implicit-function-declaration '
                        '-Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion',
             'lainc': '',
@@ -73,10 +73,13 @@ class HPCCBuild(rfm.CompileOnlyRegressionTest):
 
     @run_before('compile')
     def prepare_build(self):
-        tc = self.toolchains.get(self.current_environ.name)
-        self.skip_if(tc is None, f'no HPCC build settings for {self.current_environ.name}')
+        env = self.current_environ
+        self.skip_if('mpi' not in env.features, f'{env.name} has no MPI compiler wrappers')
+        family = env.name.split('-')[0]
+        tc = self.toolchains.get(family)
+        self.skip_if(tc is None, f'no HPCC build settings for toolchain family {family!r} ({env.name})')
         with open(os.path.join(self.stagedir, 'Make.calcua'), 'w') as f:
-            f.write(MAKE_ARCH.format(**tc))
+            f.write(MAKE_ARCH.format(cc=env.cc, **tc))
         self.build_system.commands = [
             f'curl -sfL {HPCC_URL} | tar xz --strip-components=1',
             'cp Make.calcua hpl/',
