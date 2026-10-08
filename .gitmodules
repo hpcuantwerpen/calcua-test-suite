@@ -1,3 +1,3 @@
 [submodule "vsc-test-suite"]
 	path = vsc-test-suite
-	url = git@github.com:Lewih/vsc-test-suite.git
+	url = https://github.com/Lewih/vsc-test-suite.git
