@@ -77,7 +77,7 @@
 | `fs` | cue mounts + `/dev/kfd` on `vaughan:amd` |
 | `micro` | VSC echo job, MPI hello, GPU job |
 | `fftw`, `halo` | MPI compile + run |
-| `hpcc` | HPC Challenge, 1/8/24 nodes, `leibniz:broadwell`, `vaughan:zen2`/`zen3`; built from source per toolchain (`foss-2025a_mpi`, `intel-2025a_mpi`) |
+| `hpcc` | HPC Challenge, 1/8/24 nodes, `leibniz:broadwell`, `vaughan:zen2`/`zen3`, `breniac:skylake`; built from source per toolchain (`foss-2025a_mpi`, `intel-2025a_mpi`) |
 | `burn` | GPU burn, non-deprecated nvidia |
 | `openfoam` | cavity3D (`icoFoam`, mesh 1M/8M/64M), needs an **ESI** module (`v2506`); also matches `flame` |
 | `flame` | counterFlowFlame2D, 2 nodes, needs an **openfoam.org** module (`13`; 11/12 work, 10 doesn't). Scale with `-S mesh_scale=N` |

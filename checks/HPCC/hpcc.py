@@ -93,7 +93,7 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
     num_nodes = parameter([1, 8, 24], type=int)
     tags = {'hpcc', 'calcua', 'compilation', 'performance'}
     # class-level so that -S valid_systems/valid_prog_environs=... can override them
-    valid_systems = ['leibniz:broadwell', 'vaughan:zen2', 'vaughan:zen3']
+    valid_systems = ['leibniz:broadwell', 'vaughan:zen2', 'vaughan:zen3', 'breniac:skylake']
     valid_prog_environs = ['foss-2025a_mpi', 'intel-2025a_mpi']
     hpcc = fixture(HPCCBuild, scope='environment')
     maintainers = ['Michele Pugno']
@@ -136,102 +136,15 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
                                            'data', float), 
         }
 
-        # self.num_nodes_reference = {
-        #     '1':{
-        #         'leibniz:default-node': {
-        #             'HPL_Tflops': (0.892, -0.089, 0.089, 'Tflops'),
-        #             'PTRANS_GBs': (9.34, -0.06, 0.06, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (0.405, -0.082, 0.082, 'GUPs'),
-        #             'MPIFFT_Gflops': (33.34, -0.086, 0.086, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.60, -0.052, 0.052, 'Triad'),
-        #             'StarDGEMM_Gflops': (35.98, -0.169, 0.169, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.966, -0.184, 0.184, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (0.58, -0.1, 0.1, 'usec'),
-        #         },
-        #         'vaughan:default-node': {
-        #             'HPL_Tflops': (1.84478, -0.1, 0.1, 'Tflops'),
-        #             'PTRANS_GBs': (11.0, -0.1, 0.1, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (0.19, -0.1, 0.1, 'GUPs'),
-        #             'MPIFFT_Gflops': (59.4144, -0.1, 0.1, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.27283, -0.01, 0.01, 'Triad'),
-        #             'StarDGEMM_Gflops': (33.6247, -0.1, 0.1, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.525112, -0.1, 0.1, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (1.04047, -0.1, 0.1, 'usec'),
-        #         },
-        #     },
-        #     '2': {
-        #         'leibniz:default-node': {
-        #             'HPL_Tflops': (1.80669, -0.089, 0.089, 'Tflops'),
-        #             'PTRANS_GBs': (15.5647, -0.06, 0.06, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (0.641649, -0.082, 0.082, 'GUPs'),
-        #             'MPIFFT_Gflops': (49.7101, -0.086, 0.086, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.60, -0.052, 0.052, 'Triad'),
-        #             'StarDGEMM_Gflops': (35.98, -0.169, 0.169, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.671674, -0.184, 0.184, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (0.927608, -0.014, 0.014, 'usec'),
-        #         },
-        #         'vaughan:default-node': {
-        #             'HPL_Tflops': (3.65754, -0.1, 0.1, 'Tflops'),
-        #             'PTRANS_GBs': (13.6788, -0.1, 0.1, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (0.351861, -0.1, 0.1, 'GUPs'),
-        #             'MPIFFT_Gflops': (41.8152, -0.1, 0.1, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.27457, -0.1, 0.1, 'Triad'),
-        #             'StarDGEMM_Gflops': (33.4844, -0.1, 0.1, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.168236, -0.1, 0.1, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (6.60655, -0.1, 0.1, 'usec'),
-        #         },
-        #     },
-        #     '8': {
-        #         'leibniz:default-node': {
-        #             'HPL_Tflops': (7.0245, -0.089, 0.089, 'Tflops'),
-        #             'PTRANS_GBs': (49.74705, -0.06, 0.06, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (1.875305, -0.082, 0.082, 'GUPs'),
-        #             'MPIFFT_Gflops': (100.656, -0.086, 0.086, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.5237325, -0.052, 0.052, 'Triad'),
-        #             'StarDGEMM_Gflops': (34.6867, -0.169, 0.169, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.33274825, -0.184, 0.184, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (1.0244975, -0.014, 0.014, 'usec'),
-        #         },
-        #         'vaughan:default-node': {
-        #             'HPL_Tflops': (14.5471 , -0.1, 0.1, 'Tflops'),
-        #             'PTRANS_GBs': (34.2725, -0.1, 0.1, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (0.895806, -0.1, 0.1, 'GUPs'),
-        #             'MPIFFT_Gflops': (103.021, -0.1, 0.1, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.27175, -0.1, 0.1, 'Triad'),
-        #             'StarDGEMM_Gflops': (33.6372, -0.1, 0.1, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.100542, -0.1, 0.1, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (15.638, -0.1, 0.1, 'usec'),
-        #         },
-        #     },
-        #     '24': {
-        #         'leibniz:default-node': {
-        #             'HPL_Tflops': (20.38357, -0.089, 0.089, 'Tflops'),
-        #             'PTRANS_GBs': (140.7002, -0.06, 0.06, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (4.06216, -0.082, 0.082, 'GUPs'),
-        #             'MPIFFT_Gflops': (423.523, -0.086, 0.086, 'Gflops'),
-        #             'StarSTREAM_Triad': (3.64279, -0.052, 0.052, 'Triad'),
-        #             'StarDGEMM_Gflops': (34.6867, -0.169, 0.169, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.33274825, -0.184, 0.184, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (1.104614, -0.014, 0.014, 'usec'),
-        #         },
-        #         'vaughan:default-node': {
-        #             'HPL_Tflops': (41.2868 , -0.1, 0.1, 'Tflops'),
-        #             'PTRANS_GBs': (88.147, -0.1, 0.1, 'GBs'),
-        #             'MPIRandomAccess_GUPs': (2.41658, -0.1, 0.1, 'GUPs'),
-        #             'MPIFFT_Gflops': (255.231, -0.1, 0.1, 'Gflops'),
-        #             'StarSTREAM_Triad': (4.2694, -0.1, 0.1, 'Triad'),
-        #             'StarDGEMM_Gflops': (33.5848 , -0.1, 0.1, 'Gflops'),
-        #             'RandomlyOrderedRingBandwidth_GBytes': (0.0712722, -0.1, 0.1, 'GBs'),
-        #             'RandomlyOrderedRingLatency_usec': (18.3818, -0.1, 0.1, 'usec'),
-        #         },
-        #     }
-        # }
-
-        #self.reference = self.num_nodes_reference[self.num_nodes]
-
     @run_before('run')
     def set_details(self):
         self.job.options = ['--time 06:00:00', '--switches=1']
+
+    @run_after('setup')
+    def skip_too_large(self):
+        # skip massive on breniac
+        self.skip_if(self.current_system.name == 'breniac' and self.num_nodes > 8,
+                     f'{self.num_nodes} nodes is more than breniac can provide')
 
     @run_after('setup')
     def set_num_cpus(self):

@@ -37,7 +37,7 @@ export I_MPI_PIN_CELL=core
 export I_MPI_PIN_DOMAIN=omp
 export I_MPI_PIN_MODE=pm
 export I_MPI_PIN_ORDER=compact
-export I_MPI_PROCESSOR_LIST=allcores:grain=core
+export I_MPI_PIN_PROCESSOR_LIST=allcores:grain=core
 export KMP_AFFINITY=verbose,granularity=fine,compact,1,0
 
 #export I_MPI_OFA_ADAPTER_NAME=mlx5_0
@@ -46,9 +46,7 @@ HPL_N=`python3 -c "\
 import math
 v=int(math.ceil(math.sqrt(${HPL_M} * 2**30 / 8 * ${HPL_P}*${HPL_Q}/${PPN})))
 rem = v % (${PTRANS_FACT}*${HPL_B})
-if rem == 0:
-  print(rem)
-print(v+(${PTRANS_FACT}*${HPL_B})-rem)"`
+print(v if rem == 0 else v+(${PTRANS_FACT}*${HPL_B})-rem)"`
 
 echo "PPN=${PPN}"
 echo "HPL_P=${HPL_P}"
