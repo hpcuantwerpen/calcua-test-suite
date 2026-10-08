@@ -10,13 +10,12 @@ class HelloThreadedExtendedTest(rfm.RegressionTest):
     build_system = 'SingleSource'
     executable_opts = ['16']
     tags = {'calcua', 'basic', 'compilation'}
-    num_tasks_per_node = 16
+    num_cpus_per_task = 16   # one process running 16 threads
 
     @run_before('compile')
     def set_compilation_flags(self):
         self.build_system.cppflags = ['-DSYNC_MESSAGES']
         self.build_system.cxxflags = ['-std=c++11', '-Wall']
-        environ = self.current_environ.name
         self.build_system.cxxflags += ['-pthread']
 
     @run_before('sanity')
