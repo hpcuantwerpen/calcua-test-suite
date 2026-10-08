@@ -140,7 +140,7 @@ site_configuration = {
                     'access': [calcua_account_string_tier2, '-p arcturus_gpu'],
                     'environs': ['standard'],
                     'descr': 'AMD GPU node',
-                    'max_jobs': 18,                #     'launcher': 'local',
+                    'max_jobs': 18,
                     'launcher': 'local',
                     'resources': [
                         {

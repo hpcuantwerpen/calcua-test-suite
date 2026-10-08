@@ -27,11 +27,11 @@ class GaussianCheck(rfm.RunOnlyRegressionTest):
 
     @performance_function('seconds')
     def elapsed_time(self):
-        days = sn.evaluate(sn.extractall(r'Elapsed time:\s+(?P<d>\S+)\s+days', self.output_file,'d',int))
-        hours = sn.evaluate(sn.extractall(r'Elapsed time:.*days\s+(?P<h>\S+)\s+hours', self.output_file,'h',int))
-        mins = sn.evaluate(sn.extractall(r'Elapsed time:.*hours\s+(?P<m>\S+)\s+minutes', self.output_file,'m',int))
-        sec = sn.evaluate(sn.extractall(r'Elapsed time:.*minutes\s+(?P<sec>\S+)\s+seconds', self.output_file,'sec',float))
-        return sum(days*24*60*60 + hours*60*60 + mins*60 + sec)
+        # one 'Elapsed time' line per Gaussian step (opt, then freq): add them up
+        steps = sn.evaluate(sn.extractall(
+            r'Elapsed time:\s+(?P<d>\d+)\s+days\s+(?P<h>\d+)\s+hours\s+(?P<m>\d+)\s+minutes\s+(?P<s>\S+)\s+seconds',
+            self.output_file, ('d', 'h', 'm', 's'), (int, int, int, float)))
+        return sum(d*24*60*60 + h*60*60 + m*60 + s for d, h, m, s in steps)
 
     @run_before('run')
     def set_details(self):
