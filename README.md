@@ -37,7 +37,7 @@
 
 **`./run.sh [reframe options]`** — pulls the production checkout, then starts `run_calcua.sh --run --push-mongo <options>` detached on `login1.leibniz`, `login1.vaughan` and `login.breniac`.
 
-**`./push_to_mongo.py [report] [endpoint]`** — POSTs every test case in `$CALCUA_LOGDIR/reports/<report>.json` (default `last-<cluster>`) to `https://service.antwerpen.vsc:27016/add_<endpoint>/` (default `reframe`). HTTP errors are not checked.
+**`./push_to_mongo.py [report] [endpoint]`** — POSTs every test case in `$CALCUA_LOGDIR/reports/<report>.json` (default `last-<cluster>`) to `https://service.antwerpen.vsc:27016/add_<endpoint>/` (default `reframe`). Rejected test cases are logged and make it exit 1.
 
 **Output** goes to `$CALCUA_LOGDIR`, default `/apps/antwerpen/reframe/logs/`; `run.sh` forwards it. Use e.g. `CALCUA_LOGDIR=$VSC_DATA/reframe/logs` to stay out of the shared directory.
 

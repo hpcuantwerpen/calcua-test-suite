@@ -19,9 +19,17 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 with open(f'{logdir}/reports/{report_name}.json') as json_file:
     content = json.loads(json_file.read())
 
+failed = 0
 for element in content["runs"]:
     for test in element["testcases"]:
         # self signed cert
         r = requests.post(f'https://service.antwerpen.vsc:27016/add_{api_endpoint}/', json=test, verify=False)
+        if not r.ok:
+            failed += 1
+            print(f'{test.get("display_name", test.get("name"))}: HTTP {r.status_code} {r.text[:200]}', file=sys.stderr)
         # if test["perfvars"] is not None:
         #     pass
+
+if failed:
+    print(f'{failed} test case(s) rejected', file=sys.stderr)
+    sys.exit(1)
