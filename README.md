@@ -292,3 +292,5 @@ cpu_env_list.append('foss-2025b_mpi')
 | `checks/quantumespresso/src/` | [QE benchmarks](https://github.com/QEF/benchmarks/tree/master/AUSURF112) AUSURF112 | MIT, `COPYING` |
 
 Update by re-copying from upstream, not by hand.
+
+This repository is GPL-3.0 (`LICENSE`); the vendored cases above keep their own licences.
