@@ -286,5 +286,10 @@ cpu_env_list.append('foss-2025b_mpi')
 |---|---|---|
 | `checks/openfoam/src/cavity3D/` | [OpenFOAM HPC TC](https://develop.openfoam.com/committees/hpc/-/tree/develop/incompressible/icoFoam/cavity3D); pipeline after [EESSI](https://github.com/EESSI/test-suite) | CC BY-SA 4.0, `COPYING` |
 | `checks/openfoam/src/counterFlowFlame2D/` | [OpenFOAM-13 tutorial](https://github.com/OpenFOAM/OpenFOAM-13/tree/master/tutorials/multicomponentFluid/counterFlowFlame2D) | GPL-3.0, `COPYING` |
+| `checks/abinit/src/H.psp8` | [PseudoDojo](http://www.pseudo-dojo.org/) (NC SR); cite D. R. Hamann, PRB 88, 085117 (2013) | CC BY 4.0 |
+| `checks/abinit/src/Au.psp8` | ONCVPSP 3.2.3.1; cite D. R. Hamann, PRB 88, 085117 (2013) | see source |
+| `checks/abinit/src/hydrogen.abi` | [ABINIT tutorial](https://docs.abinit.org/tutorial/base1/) | GPL-3.0 |
+| `checks/quantumespresso/src/Au.pbe-nd-van.UPF` | [QE pseudopotential library](https://www.quantum-espresso.org/pseudopotentials/), P. Giannozzi | see source |
+| `checks/quantumespresso/src/ausurf.in` | AUSURF112 (DEISA), [QE benchmarks](https://github.com/QEF/benchmarks) | see source |
 
 Update by re-copying from upstream, not by hand.
