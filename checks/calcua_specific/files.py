@@ -32,8 +32,8 @@ class CalcuaExistTest(rfm.RunOnlyRegressionTest):
         if self.current_partition.name == "login":
             self.job.launcher = getlauncher('local')()
         else:
-            self.job.launcher.options = ['--overlap']
             self.job.launcher = getlauncher('srun')()
+            self.job.launcher.options = ['--overlap']
 
     @sanity_function
     def assert_test_1(self):
