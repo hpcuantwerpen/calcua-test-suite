@@ -10,7 +10,7 @@ class gromacs_test(hpctestlib.sciapps.gromacs.benchmarks.gromacs_check):
     num_nodes = parameter([1, 8], type=int)
     # CUDA builds run in the gpu variant, all other builds in the cpu one, so any
     # build can be tested with -P gromacs_test.version=GROMACS/...
-    version = parameter(['GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'], type=str)
+    version = parameter(['GROMACS/2025.3-foss-2025a', 'GROMACS/2023.3-foss-2023a-PLUMED-2.9.0', 'GROMACS/2024.4-foss-2024a-CUDA-12.6.0-PLUMED-2.9.3'], type=str)
 
     @run_after('init')
     def skip_invalid(self):
