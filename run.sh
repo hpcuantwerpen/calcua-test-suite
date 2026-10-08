@@ -38,6 +38,6 @@ logdir_override="${CALCUA_LOGDIR:+CALCUA_LOGDIR=$(printf '%q' "$CALCUA_LOGDIR") 
 remote_cmd="cd $testdir; ${logdir_override}nohup ./run_calcua.sh --run --push-mongo $args > /dev/null 2>&1 &"
 
 for n in "${sites[@]}"; do
-  ssh "$username@$n" -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null \
+  ssh "$username@$n" \
     "bash --login -c $(printf '%q' "$remote_cmd")"
 done
