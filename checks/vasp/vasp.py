@@ -25,6 +25,12 @@ class vasp_test(rfm.RunOnlyRegressionTest):
     num_nodes = parameter([4, 10], type=int)
     time_limit = '1h'
 
+    @run_after('init')
+    def check_inputs(self):
+        # src/ holds the licensed POTCAR: kept locally, not in the repo
+        self.skip_if(not os.path.isdir(os.path.join(self.prefix, 'src')),
+                     'checks/vasp/src not found (licensed inputs, not in the repo)')
+
     @run_before('run')
     def setup_run(self):
         self.num_tasks_per_node = self.current_partition.extras['num_cpus']

@@ -9,4 +9,5 @@ output/
 resources/
 *.pyc
 .vscode
+checks/vasp/src/
 .claude

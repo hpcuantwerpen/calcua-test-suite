@@ -23,6 +23,7 @@
 | `module_mappings.txt` | mappings for every run |
 | `checks/` | CalcUA tests. Every `.py` here is imported: no helper scripts |
 | `vsc-test-suite/` | [VSC test suite](https://github.com/Lewih/vsc-test-suite), pinned submodule. Update: `git submodule update --remote vsc-test-suite`, commit the pointer |
+| `checks/vasp/src/` | not in the repo (licensed POTCAR): copy it in locally, or `vasp_test` is skipped |
 
 ## Scripts
 
