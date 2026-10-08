@@ -1,22 +1,18 @@
 #!/bin/bash -x
 
 export NNODES=${SLURM_JOB_NUM_NODES}
-export PPN=28
+export PPN=${SLURM_NTASKS_PER_NODE}
 export NTASKS=${SLURM_NTASKS}
 
-export EXECHOME=/apps/antwerpen/benchmarks/HPCC-leibniz
+# HPCC_BIN (the hpcc binary) is set by hpcc.py; the toolchain is loaded by ReFrame
 export BMHOME=.
 
-module load calcua/2023a
-module load intel/2023a
-
 BASEDIR=${BMHOME}/HPCC_${NNODES}
-BINDIR=${EXECHOME}/bin
 
 mkdir -p ${BASEDIR}
 cd ${BASEDIR}
 
-HPL_Q=`python -c "\
+HPL_Q=`python3 -c "\
 import math
 q=math.ceil(math.sqrt($NTASKS))
 while($NTASKS%q!=0):
@@ -46,7 +42,7 @@ export KMP_AFFINITY=verbose,granularity=fine,compact,1,0
 
 #export I_MPI_OFA_ADAPTER_NAME=mlx5_0
 
-HPL_N=`python -c "\
+HPL_N=`python3 -c "\
 import math
 v=int(math.ceil(math.sqrt(${HPL_M} * 2**30 / 8 * ${HPL_P}*${HPL_Q}/${PPN})))
 rem = v % (${PTRANS_FACT}*${HPL_B})
@@ -103,7 +99,7 @@ ${PTRANS_B}  values of NB" > hpccinf.txt
 
 
 set -x
-srun ${BINDIR}/hpcc 2>&1 | tee hpcc.txt
+srun ${HPCC_BIN} 2>&1 | tee hpcc.txt
 set -x
 
 

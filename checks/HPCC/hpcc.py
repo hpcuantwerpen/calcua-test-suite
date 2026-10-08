@@ -1,6 +1,91 @@
+import os
+
 import reframe as rfm
 import reframe.utility.sanity as sn
 from reframe.core.backends import getlauncher    
+
+# Upstream HPCC has no release after 1.5.0 (2016). This commit (2022-12-12) is the last code
+# change: it adds FFTW3 support and builds with MPI-3 implementations such as Open MPI 5.
+HPCC_COMMIT = 'd2b9a19b4498fdced2860f3394c03f27714b6160'
+HPCC_URL = f'https://github.com/icl-utk-edu/hpcc/archive/{HPCC_COMMIT}.tar.gz'
+
+# hpl/Make.calcua, after upstream's hpl/setup/Make.Linux-x86_64-OpenBLAS-FFTW3
+MAKE_ARCH = '''\
+SHELL        = /bin/sh
+CD           = cd
+CP           = cp
+LN_S         = ln -s
+MKDIR        = mkdir
+RM           = /bin/rm -f
+TOUCH        = touch
+ARCH         = $(arch)
+TOPdir       = ../../..
+INCdir       = $(TOPdir)/include
+BINdir       = $(TOPdir)/bin/$(ARCH)
+LIBdir       = $(TOPdir)/lib/$(ARCH)
+HPLlib       = $(LIBdir)/libhpl.a
+MPdir        =
+MPinc        =
+MPlib        =
+LAdir        =
+LAinc        = {lainc}
+LAlib        = {lalib}
+F2CDEFS      = -DAdd_ -DF77_INTEGER=int -DStringSunStyle
+HPL_INCLUDES = -I$(INCdir) -I$(INCdir)/$(ARCH) $(LAinc) $(MPinc)
+HPL_LIBS     = $(HPLlib) $(LAlib) $(MPlib) -lm
+HPL_OPTS     =
+HPL_DEFS     = $(F2CDEFS) $(HPL_OPTS) $(HPL_INCLUDES)
+CC           = {cc}
+CCNOOPT      = $(HPL_DEFS)
+CCFLAGS      = $(HPL_DEFS) {ccflags}
+LINKER       = $(CC)
+LINKFLAGS    = $(CCFLAGS)
+ARCHIVER     = ar
+ARFLAGS      = r
+RANLIB       = echo
+'''
+
+
+class HPCCBuild(rfm.CompileOnlyRegressionTest):
+    '''Download HPCC at HPCC_COMMIT and build it with the current toolchain (on the login node).'''
+    valid_systems = ['*']
+    valid_prog_environs = ['*']
+    sourcesdir = None
+    build_system = 'CustomBuild'
+    # Per toolchain. foss: FFTW3 (FFTW.MPI ships with foss). intel: HPCC's built-in FFTE, since
+    # MKL has no ready-made FFTW3 MPI library. AVX2 for broadwell/zen; GCC 14 and icx turn old C
+    # idioms in HPCC into errors, hence -fpermissive / -Wno-error=...
+    toolchains = variable(dict, value={
+        'foss-2025a_mpi': {
+            'cc': 'mpicc',
+            'ccflags': '-O3 -march=x86-64-v3 -fcommon -fpermissive',
+            'lainc': '-DUSING_FFTW3',
+            'lalib': '-lfftw3_mpi -lfftw3 -lflexiblas',
+        },
+        'intel-2025a_mpi': {
+            'cc': 'mpiicx',
+            'ccflags': '-O3 -march=core-avx2 -fcommon -Wno-error=implicit-function-declaration '
+                       '-Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion',
+            'lainc': '',
+            'lalib': '-qmkl=sequential',
+        },
+    })
+
+    @run_before('compile')
+    def prepare_build(self):
+        tc = self.toolchains.get(self.current_environ.name)
+        self.skip_if(tc is None, f'no HPCC build settings for {self.current_environ.name}')
+        with open(os.path.join(self.stagedir, 'Make.calcua'), 'w') as f:
+            f.write(MAKE_ARCH.format(**tc))
+        self.build_system.commands = [
+            f'curl -sfL {HPCC_URL} | tar xz --strip-components=1',
+            'cp Make.calcua hpl/',
+            'make arch=calcua',
+        ]
+
+    @sanity_function
+    def built(self):
+        return sn.path_isfile(os.path.join(self.stagedir, 'hpcc'))
 
 
 @rfm.simple_test
@@ -8,8 +93,9 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
     num_nodes = parameter([1, 8, 24], type=int)
     tags = {'hpcc', 'calcua', 'compilation', 'performance'}
     # class-level so that -S valid_systems/valid_prog_environs=... can override them
-    valid_systems = ['leibniz:broadwell'] #, 'vaughan:zen2', 'vaughan:zen3']
-    valid_prog_environs = ['standard']
+    valid_systems = ['leibniz:broadwell', 'vaughan:zen2', 'vaughan:zen3']
+    valid_prog_environs = ['foss-2025a_mpi', 'intel-2025a_mpi']
+    hpcc = fixture(HPCCBuild, scope='environment')
     maintainers = ['Michele Pugno']
 
     def __init__(self):
@@ -149,7 +235,8 @@ class HPCCTest(rfm.RunOnlyRegressionTest):
 
     @run_after('setup')
     def set_num_cpus(self):
-        self.executable = f"./hpcc-2021-{self.current_system.name}.sh"
+        self.executable = './hpcc.sh'
+        self.env_vars['HPCC_BIN'] = os.path.join(self.hpcc.stagedir, 'hpcc')
         self.num_tasks_per_node = self.current_partition.extras['num_cpus']
         self.num_tasks = self.num_tasks_per_node * int(self.num_nodes)
 

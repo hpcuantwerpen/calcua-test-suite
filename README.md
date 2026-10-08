@@ -77,7 +77,7 @@
 | `fs` | cue mounts + `/dev/kfd` on `vaughan:amd` |
 | `micro` | VSC echo job, MPI hello, GPU job |
 | `fftw`, `halo` | MPI compile + run |
-| `hpcc` | HPC Challenge, 1/8/24 nodes, `leibniz:broadwell` only |
+| `hpcc` | HPC Challenge, 1/8/24 nodes, `leibniz:broadwell`, `vaughan:zen2`/`zen3`; built from source per toolchain (`foss-2025a_mpi`, `intel-2025a_mpi`) |
 | `burn` | GPU burn, non-deprecated nvidia |
 | `openfoam` | cavity3D (`icoFoam`, mesh 1M/8M/64M), needs an **ESI** module (`v2506`); also matches `flame` |
 | `flame` | counterFlowFlame2D, 2 nodes, needs an **openfoam.org** module (`13`; 11/12 work, 10 doesn't). Scale with `-S mesh_scale=N` |
@@ -102,8 +102,7 @@ Environments: `standard` (no modules), `foss-`/`intel-{2023a,2024a,2025a}`, thei
 |---|---|
 | a `version` parameter: abinit, amber, gaussian, gromacs, QE, vasp, openfoam, flame | `-P Class.version=MOD[,MOD]` |
 | a bare name (`NAMD`, `Julia`, `MATLAB`, `SciPy-bundle`, ...): VSC suite | `-M 'NAME:NAME/VERSION'` |
-| an environment's toolchain: compiled tests | a new environment, see below |
-| modules in its own script: HPCC | edit `checks/HPCC/src/` |
+| an environment's toolchain: compiled tests, incl. hpcc | a new environment, see below |
 | software in `/apps/antwerpen/testing/` | `--module-path=+/apps/antwerpen/testing/<subdir>/modules/<cluster-arch-os>/all/` |
 
 | Caveat | |
@@ -204,8 +203,8 @@ Always name the partition: `'*'` also matches login nodes.
 ### Massive tests
 
 ```bash
-./run_calcua.sh --run --mode=all -t massive                                         # hpcc 24 nodes (leibniz), openfoam 64M
-./run_calcua.sh --run --mode=all -n HPCCTest -P HPCCTest.num_nodes=24               # on leibniz
+./run_calcua.sh --run --mode=all -t massive                                         # hpcc 24 nodes, openfoam 64M
+./run_calcua.sh --run --mode=all -n HPCCTest -P HPCCTest.num_nodes=24
 ./run_calcua.sh --run --mode=all -n OpenFOAMCavity3DCheck -P OpenFOAMCavity3DCheck.mesh=64M
 ```
 
