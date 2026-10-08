@@ -8,11 +8,14 @@ from urllib3.exceptions import InsecureRequestWarning
 # second argument is the endpoint
 api_endpoint = 'reframe'
 logdir = os.getenv('CALCUA_LOGDIR', '/apps/antwerpen/reframe/logs').rstrip('/')   # same default as calcua_config.py
-report_name = f'last-{os.getenv("VSC_INSTITUTE_CLUSTER")}'
+cluster = os.getenv('VSC_INSTITUTE_CLUSTER')
+report_name = f'last-{cluster}'
 if len(sys.argv) > 1:
     report_name = sys.argv[1]
     if len(sys.argv) > 2:
         api_endpoint = sys.argv[2]
+elif not cluster:
+    sys.exit('VSC_INSTITUTE_CLUSTER is not set: pass the report name, e.g. ./push_to_mongo.py last-vaughan')
 
 # Suppress only the single warning from urllib3 needed.
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
