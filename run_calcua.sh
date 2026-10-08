@@ -1,3 +1,4 @@
+#!/bin/bash
 # Wrapper around reframe for the CalcUA test suite.
 # Every argument except --push-mongo and -h/--help is passed to reframe unchanged.
 

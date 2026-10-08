@@ -1,3 +1,4 @@
+#!/bin/bash
 # Run the CalcUA test suite on every cluster and push the results to the database.
 
 username="${USER:-$(id -un)}"   # run on the other clusters as the current user
